@@ -36,20 +36,15 @@
                 <div class="d-inline-flex align-items-center h-100">
                     <a class="text-body mr-3" href="">Acerca de nosotros</a>
                     <a class="text-body mr-3" href="">Contacto</a>
-                    <a class="text-body mr-3" href="">Ayuda</a>
-                    <a class="text-body mr-3" href="">FAQs</a>
                 </div>
             </div>
             <div class="col-lg-6 text-center text-lg-right">
-                <div class="d-inline-flex align-items-center">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Mi Cuenta</button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <button class="dropdown-item" type="button">Iniciar Sesion</button>
-                            <button class="dropdown-item" type="button">Registrarse</button>
-                        </div>
-                    </div>
-                </div>
+                {%  if user.is_authenticated %}
+                <a class="text-body mr-3" href="{% url 'logout' %}">Cerrar sesion</a>
+                {% else %}
+                <a class="text-body mr-3" href="">Iniciar sesion</a>
+                <a class="text-body mr-3" href="{% url 'Autenticacion' %}">Registrate</a>
+                {% endif %}
                 <div class="d-inline-flex align-items-center d-block d-lg-none">
                     <a href="" class="btn px-0 ml-2">
                         <i class="fas fa-heart text-dark"></i>
@@ -82,8 +77,10 @@
                 </form>
             </div>
             <div class="col-lg-4 col-6 text-right">
-                <p class="m-0">Servicio Personalizado</p>
-                <h5 class="m-0">+569 9999 9999</h5>
+                {%  if user.is_authenticated %}
+                <p class="m-0">Bienvenido</p>
+                <h5 class="m-0">{{ user.username }}</h5>
+                {% endif %}
             </div>
         </div>
     </div>
