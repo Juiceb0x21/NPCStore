@@ -1,31 +1,38 @@
 from django.shortcuts import render, redirect
 from .models import *
 from django.contrib.auth import authenticate, login
-from .forms import CustomAuthenticationForm
-from .forms import *
+from .forms import loginForm
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
-
-
-from .forms import CustomAuthenticationForm
-
+import requests
+import json
 
 
 def index(request):
+    response = requests.get('http://127.0.0.1:5000/api/productos')
+    if response.status_code == 200:
+        data = response.json()
+    
     return render(request, 'core/index.html')
 
-def login_view(request):
+def login(request):
     if request.method == 'POST':
-        form = CustomAuthenticationForm(request, data=request.POST)
+        form = loginForm(request, data=request.POST)
         if form.is_valid():
-            user = authenticate(request, username=form.cleaned_data['username'], password=form.cleaned_data['password'])
-            if user is not None:
-                login(request, user)
-                return redirect('home') 
+            json = {
+                'correo': form.cleaned_data['correo'], 
+                'contrasena': form.cleaned_data['contrasena']
+            }
+            response = requests.post('http://127.0.0.1:5000/api/users/login', json=json)
+            if response.status_code == 200:
+                data = json.loads(response.json().replace("'",'"'))
+                estado = data['estado']
+                if estado == True:
+                    return redirect('home')               
     else:
-        form = CustomAuthenticationForm()
+        form = loginForm()
 
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'core/login.html', {'form': form})
 
 def productos(request):
     return render(request, 'core/shop.html')
