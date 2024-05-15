@@ -28,6 +28,8 @@ def login(request):
                 data = response.json()
                 if data['estado'] == True:
                     return redirect('home')
+                else:
+                    print("xd")
 
     else:
         form = loginForm()
