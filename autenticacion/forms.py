@@ -28,8 +28,8 @@ class CustomUserCreationForm(forms.Form):
 
     def save(self, commit=True):
         user = User.objects.create_user(
-            username=self.cleaned_data['nombre'],
-            email=self.cleaned_data['email'],
+            first_name=self.cleaned_data['nombre'],
+            username=self.cleaned_data['email'],
             password= self.cleaned_data['password1'],
         )
         

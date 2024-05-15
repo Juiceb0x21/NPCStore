@@ -132,5 +132,10 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MEDIA_URL = "/media/"
 
+MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
+
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'

@@ -40,9 +40,12 @@
             </div>
             <div class="col-lg-6 text-center text-lg-right">
                 {%  if user.is_authenticated %}
-                <a class="text-body mr-3" href="{% url 'logout' %}">Cerrar sesion</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Cerrar sesion</button>
+                </form>
                 {% else %}
-                <a class="text-body mr-3" href="">Iniciar sesion</a>
+                <a class="text-body mr-3" href="{%  url 'login' %}">Iniciar sesion</a>
                 <a class="text-body mr-3" href="{% url 'Autenticacion' %}">Registrate</a>
                 {% endif %}
                 <div class="d-inline-flex align-items-center d-block d-lg-none">
@@ -79,7 +82,7 @@
             <div class="col-lg-4 col-6 text-right">
                 {%  if user.is_authenticated %}
                 <p class="m-0">Bienvenido</p>
-                <h5 class="m-0">{{ user.username }}</h5>
+                <h5 class="m-0">{{ user.first_name }}</h5>
                 {% endif %}
             </div>
         </div>
