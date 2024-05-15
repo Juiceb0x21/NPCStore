@@ -17,7 +17,7 @@ def index(request):
 
 def login(request):
     if request.method == 'POST':
-        form = loginForm(request, data=request.POST)
+        form = loginForm(data=request.POST)
         if form.is_valid():
             json = {
                 'correo': form.cleaned_data['correo'], 
@@ -25,10 +25,10 @@ def login(request):
             }
             response = requests.post('http://127.0.0.1:5000/api/users/login', json=json)
             if response.status_code == 200:
-                data = json.loads(response.json().replace("'",'"'))
-                estado = data['estado']
-                if estado == True:
-                    return redirect('home')               
+                data = response.json()
+                if data['estado'] == True:
+                    return redirect('home')
+
     else:
         form = loginForm()
 
