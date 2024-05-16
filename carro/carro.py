@@ -10,6 +10,7 @@ class Carro:
         self.carro = carro
 
     def agregar(self, producto):
+        print("pasó")
         if str(producto.id) not in self.carro.keys():
             if producto.stock > 0:
                 self.carro[str(producto.id)] = {
@@ -23,20 +24,20 @@ class Carro:
                 json ={
                     "id" : producto.id
                 }
-                response = requests.post('http://127.0.0.1:5000/api/productos/actstock', json=json)
+                response = requests.post('http://127.0.0.1:5000/api/productos/actstockmenos', json=json)
                 data = response.json()
             else:
                 pass
         else:
             for key, value in self.carro.items():
                 if key == str(producto.id):
-                    if value["cantidad"] < producto.stock:
+                    if producto.stock > 0:
                         value["cantidad"] += 1
                         value["precio2"] += producto.precio
                         json ={
                             "id" : producto.id
                         }
-                        response = requests.post('http://127.0.0.1:5000/api/productos/actstock', json=json)
+                        response = requests.post('http://127.0.0.1:5000/api/productos/actstockmenos', json=json)
                         data = response.json()
                     else:
                         pass
@@ -50,10 +51,17 @@ class Carro:
     def eliminar(self, producto):
         producto_id = str(producto.id)
         if producto_id in self.carro:
-            producto.stock += self.carro[producto_id]["cantidad"]
+            print("Pasó")
+            json = {
+                'cantidad' : self.carro[producto_id]["cantidad"],
+                'id' : producto.id
+            }
+            response = requests.post('http://127.0.0.1:5000/api/productos/actstockmas', json=json)
+            data = response.json()
             del self.carro[producto_id]
-            producto.save()
             self.guardar_carro()
+        else:
+            print("no pasó")
 
     def restar_producto(self, producto):
         producto_id = str(producto.id)
@@ -63,7 +71,12 @@ class Carro:
                     value["cantidad"] -= 1
                     value["precio2"] -= producto.precio
                     producto.stock += 1
-                    producto.save()  # Guardar el producto actualizado
+                    json = {
+                        'cantidad' : 1,
+                        'id' : producto.id
+                    }
+                    response = requests.post('http://127.0.0.1:5000/api/productos/actstockmas', json=json)
+                    data = response.json()# Guardar el producto actualizado
                     if value["cantidad"] < 1:
                         self.eliminar(producto)
                     break
@@ -78,4 +91,3 @@ class Carro:
     def agregar_pedido(self):
         self.carro.items()
 
-   
