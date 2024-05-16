@@ -1,3 +1,5 @@
+import requests
+
 class Carro:
     def __init__(self, request):
         self.request = request
@@ -16,10 +18,13 @@ class Carro:
                     "precio": str(producto.precio),
                     "precio2": int(producto.precio),
                     "cantidad": 1,
-                    "imagen": producto.imagen.url
+                    "imagen": producto.imagen
                 }
-                producto.stock -= 1
-                producto.save()
+                json ={
+                    "id" : producto.id
+                }
+                response = requests.post('http://127.0.0.1:5000/api/productos/actstock', json=json)
+                data = response.json()
             else:
                 pass
         else:
@@ -28,8 +33,11 @@ class Carro:
                     if value["cantidad"] < producto.stock:
                         value["cantidad"] += 1
                         value["precio2"] += producto.precio
-                        producto.stock -= 1
-                        producto.save()
+                        json ={
+                            "id" : producto.id
+                        }
+                        response = requests.post('http://127.0.0.1:5000/api/productos/actstock', json=json)
+                        data = response.json()
                     else:
                         pass
                     break
