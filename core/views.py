@@ -7,6 +7,14 @@ from django.contrib.auth import logout
 import requests
 import json
 from django.core.paginator import Paginator
+import random
+import string
+from transbank.webpay.webpay_plus.transaction import Transaction
+from transbank.common.options import WebpayOptions
+from transbank.common.integration_commerce_codes import IntegrationCommerceCodes
+from transbank.common.integration_api_keys import IntegrationApiKeys
+from transbank.common.integration_type import IntegrationType
+from carro import context_processor
 
 
 
@@ -73,6 +81,27 @@ def productos(request):
         return render(request, 'core/shop.html', {'error': 'No se pudo obtener los productos'})
 
 def carrito(request):
+    random_order = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
+    random_session = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))  
+
+    response = redirect('index')
+    if context_processor.importe_total_carro(request)['importe_total_carro'] > 0:
+
+        buy_order = "ordenCompra" + random_order
+        session_id = "sesion" + random_session
+        return_url = 'http://127.0.0.1:8000/'
+        amount = context_processor.importe_total_carro(request)['importe_total_carro']
+
+        tx = Transaction(WebpayOptions(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, IntegrationType.TEST))
+
+        resp = tx.create(buy_order, session_id, amount, return_url)
+
+
+        context = {'transaccion': resp}
+
+    
+
+        return render(request, 'core/cart.html', context)
     return render(request, 'core/cart.html')
 
 def detalleProducto(request, producto_id):

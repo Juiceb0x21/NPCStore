@@ -59,7 +59,7 @@
                     {% endfor %}                  
                 </table>
                 {% else %}
-                 <thead>
+                <thead>
                     <div class="alert alert-danger text-center">
                         Sin Productos
                     </div>
@@ -85,7 +85,40 @@
                             <h5>total</h5>
                             <h5>${{importe_total_carro}}</h5>
                         </div>
-                        <button class="btn btn-block btn-primary font-weight-bold my-3 py-3">Proceder al pago</button>
+                        
+
+                        {% if user_data %}
+                            {%  if user_data.is_connect == 1%}
+                                {% if importe_total_carro > 0 %}
+                                <br>
+                                <br>
+                                <form method="post" action="{{ transaccion.url}}">
+                                    <input type="hidden" name="token_ws" value="{{transaccion.token}}" />
+                                    <input class="btn btn-block btn-primary font-weight-bold my-3 py-3" type="submit" value="Ir a pagar" />
+                                </form>
+                                {% else %}
+                                <br>
+                                <br>
+                                <thead>
+                                    <div class="alert alert-danger text-center">
+                                        Debes agregar productos
+                                    </div>
+                                </thead>
+                                {% endif %}
+                            {% endif %}
+                        {% elif importe_total_carro == 0 %}
+                                <br>
+                                <br>
+                                <thead>
+                                    <div class="alert alert-danger text-center">
+                                        Debes agregar productos
+                                    </div>
+                                </thead>
+                        {% else %}
+                        <a class="btn btn-block btn-primary font-weight-bold my-3 py-3" href="{% url 'login'%}">Proceder al pago</a>
+                        {% endif %}
+
+
                     </div>
                 </div>
             </div>

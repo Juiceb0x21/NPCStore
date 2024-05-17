@@ -118,13 +118,25 @@
                             <a href="{% url 'productos' %}" class="nav-item nav-link">Productos</a>
                             <a href="contact.html" class="nav-item nav-link">Contacto</a>
                         </div>
+                        {% if user_data %}
+                            {%  if user_data.is_connect == 1%}
+                                <div class="navbar-nav ml-auto py-0 d-none d-lg-block"> 
+                                    <a href="{% url 'carrito' %}" class="btn px-0 ml-3">
+                                    
+                                        <i class="fas fa-shopping-cart text-primary"></i>
+                                        <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">{{cantidad_carro}}</span>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% else %}
                         <div class="navbar-nav ml-auto py-0 d-none d-lg-block"> 
-                            <a href="{% url 'carrito' %}" class="btn px-0 ml-3">
+                            <a href="{% url 'login' %}" class="btn px-0 ml-3">
                             
                                 <i class="fas fa-shopping-cart text-primary"></i>
-                                <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">{{cantidad_carro}}</span>
+                                <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">0</span>
                             </a>
                         </div>
+                        {% endif %}
                     </div>
                 </nav>
             </div>
