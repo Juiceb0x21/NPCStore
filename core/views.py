@@ -33,7 +33,8 @@ def login(request):
             response = requests.post('http://127.0.0.1:5000/api/users/login', json=json)
             if response.status_code == 200:
                 data = response.json()
-                if data['estado'] == True:
+                if data['is_connect'] == 1:
+                    request.session['user_data'] = data
                     return redirect('index')
                 else:
                     print("xd")
@@ -84,4 +85,13 @@ def detalleProducto(request, producto_id):
     producto = data[0]
     context = {'producto': producto}
     return render (request, 'core/detail.html', context)
+
+def logout(request, producto_id):
+    json = {
+        'id' : producto_id
+    }
+    response = requests.post('http://127.0.0.1:5000/api/users/logout', json=json)
+    if response.status_code == 200:
+        del request.session['user_data']
+        return redirect('index')
 
