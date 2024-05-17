@@ -39,14 +39,13 @@
                 </div>
             </div>
             <div class="col-lg-6 text-center text-lg-right">
-                {%  if user.is_authenticated %}
-                <form method="post" action="">
-                    {% csrf_token %}
-                    <button type="submit">Cerrar sesion</button>
-                </form>
+                {% if user_data %}
+                    {%  if user_data.is_connect == 1%}
+                    <a class="text-body mr-3" href="{%  url 'logout' producto_id=user_data.id %}">Cerrar sesion</a>
+                    {% endif %}
                 {% else %}
-                <a class="text-body mr-3" href="{%  url 'login' %}">Iniciar sesion</a>
-                <a class="text-body mr-3" href="">Registrate</a>
+                    <a class="text-body mr-3" href="{%  url 'login' %}">Iniciar sesion</a>
+                    <a class="text-body mr-3" href="">Registrate</a>
                 {% endif %}
                 <div class="d-inline-flex align-items-center d-block d-lg-none">
                     <a href="" class="btn px-0 ml-2">
@@ -80,9 +79,9 @@
                 </form>
             </div>
             <div class="col-lg-4 col-6 text-right">
-                {%  if user.is_authenticated %}
+                {%  if user_data.is_connect == 1 %}
                 <p class="m-0">Bienvenido</p>
-                <h5 class="m-0">{{ user.first_name }}</h5>
+                <h5 class="m-0">{{ user_data.nombre }}</h5>
                 {% endif %}
             </div>
         </div>
