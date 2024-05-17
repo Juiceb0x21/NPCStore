@@ -7,5 +7,5 @@ urlpatterns = [
         path('cart.html', carrito, name = "carrito"),
         path('detail.html/<int:producto_id>/', detalleProducto, name="detalleProducto"),
         path('login.html', login, name="login"),
-        path('contact.html', contacto, name="contacto")
+        path("logout/<int:producto_id>/", logout, name="logout"),
 ]
