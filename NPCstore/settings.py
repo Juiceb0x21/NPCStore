@@ -68,6 +68,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processor.user_data'
+                'carro.context_processor.importe_total_carro',
+                'carro.context_processor.cantidad_carro',
             ],
         },
     },

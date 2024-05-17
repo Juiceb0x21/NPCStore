@@ -11,13 +11,15 @@ from django.core.paginator import Paginator
 
 
 def index(request):
-    response = requests.get('http://127.0.0.1:5000/api/productos')
-    if response.status_code == 200:
+    try:
+        response = requests.get('http://127.0.0.1:5000/api/productos')
+        response.raise_for_status() 
         data = response.json()
-        context = {'productos': data}  # Envolver data en un diccionario
-        return render(request, 'core/index.html', context)
-    else:
-        return render(request, 'core/index.html', {'error': 'No se pudo obtener los productos'})
+        context = {'productos': data[:4]} 
+    except requests.exceptions.RequestException as e:
+        context = {'error': f'No se pudo obtener los productos: {e}'}
+    
+    return render(request, 'core/index.html', context)
     
 
 def login(request):
@@ -48,8 +50,16 @@ def productos(request):
 def carrito(request):
     return render(request, 'core/cart.html')
 
-def detalleProducto(request):
-    return render (request, 'core/detail.html')
+def detalleProducto(request, producto_id):
+    json = {
+        'id' : producto_id
+    }
+    response = requests.post('http://127.0.0.1:5000/api/productos/getbyid', json=json)
+    if response.status_code == 200:
+        data = response.json() 
+    producto = data[0]
+    context = {'producto': producto}
+    return render (request, 'core/detail.html', context)
 
 def logout(request, producto_id):
     json = {
