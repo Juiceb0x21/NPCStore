@@ -60,3 +60,5 @@ def detalleProducto(request, producto_id):
     context = {'producto': producto}
     return render (request, 'core/detail.html', context)
 
+def contacto(request):
+    return render(request, 'core/contacto.html')

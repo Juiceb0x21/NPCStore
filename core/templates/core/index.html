@@ -16,7 +16,7 @@
                                 <div class="p-3" style="max-width: 700px;">
                                     <h6 class="display-4 text-white mb-3 animate__animated animate__fadeInDown">Materiales</h6>
                                     <h3 class="text-white mb-3">Accesorios de la mejor calidad</h3>
-                                    <a href="" class="btn btn-primary">Comprar ahora</a>
+                                    <a href="{% url 'productos' %}" class="btn btn-primary">Comprar ahora</a>
                                 </div>
                             </div>
                         </div>
@@ -29,7 +29,7 @@
                     <div class="offer-text">
                         <h6 class="text-white text-uppercase">Construccion</h6>
                         <h3 class="text-white mb-3">Apoyo de alta calidad</h3>
-                        <a href="" class="btn btn-primary">Comprar ahora</a>
+                        <a href="{% url 'productos' %}" class="btn btn-primary">Comprar ahora</a>
                     </div>
                 </div>
                 <div class="product-offer mb-30" style="height: 200px;">
@@ -37,7 +37,7 @@
                     <div class="offer-text">
                         <h6 class="text-white text-uppercase">Herramientas</h6>
                         <h3 class="text-white mb-3">Maquinaria especial</h3>
-                        <a href="" class="btn btn-primary">Comprar ahora</a>
+                        <a href="{% url 'productos' %}" class="btn btn-primary">Comprar ahora</a>
                     </div>
                 </div>
             </div>
@@ -76,68 +76,6 @@
         </div>
     </div>
     <!-- Featured End -->
-
-
-    <!-- Categories Start -->
-    <div class="container-fluid pt-5">
-        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Categorias</span></h2>
-        <div class="row px-xl-5 pb-3">
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="">
-                    <div class="cat-item d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="{% static 'core/img/ferreteria.png' %}" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Ferreteria</h6>
-                            <small class="text-body">100 Products</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="{% static 'core/img/hogar.png' %}" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Hogar e Iluminacion</h6>
-                            <small class="text-body">100 Products</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="{% static 'core/img/bano.png' %}" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Baño y Cocina</h6>
-                            <small class="text-body">100 Products</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="{% static 'core/img/piso.png' %}" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Piso y Terminaciones</h6>
-                            <small class="text-body">100 Products</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </div>
-    <!-- Categories End -->
-
 
     <!-- Products Start -->
     <div class="container-fluid pt-5 pb-3">
