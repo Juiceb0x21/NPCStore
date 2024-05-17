@@ -21,10 +21,6 @@ def register(request):
                 usuario = User.objects.get(username=usuario.username)
                 usuario.save()
                 return redirect('home')
-            else:
-                messages.error(request, 'Error en la creación de la cuenta.')
-        else:
-            messages.error(request, 'Error al obtener datos de la API.')
     else:
         f = CustomUserCreationForm()
     return render(request, 'registro/registro.html', {'form': f})
