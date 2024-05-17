@@ -147,8 +147,8 @@
                 {% for producto in productos %}
                     <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
                         <div class="product-item bg-light mb-4">
-                            <div class="product-img position-relative overflow-hidden">
-                                <img class="img-fluid w-100" src="{% static '' %}core/img/{{producto.imagen}}" alt="">
+                            <div class="product-img overflow-hidden">
+                                <img class="w-100"" src="{% static '' %}core/img/{{producto.imagen}}" alt="">
                                 <div class="product-action">
                                     <a class="btn btn-outline-dark btn-square" href="{% url 'carro:agregar' producto.id %}"><i class="fa fa-shopping-cart"></i></a>
                                     <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
@@ -183,28 +183,16 @@
             <div class="col">
                 <div class="owl-carousel vendor-carousel">
                     <div class="bg-light p-4">
-                        <img src="{% static 'core/img/vendor-1.jpg' %}" alt="">
+                        <img style="height: 113.48px;" src="{% static 'core/img/bosch.png' %}" alt="" >
+                    </div>
+                    <div  class="bg-light p-4">
+                        <img style="height: 113.48px;" src="{% static 'core/img/sika.png' %}" alt="">
                     </div>
                     <div class="bg-light p-4">
-                        <img src="{% static 'core/img/vendor-2.jpg' %}" alt="">
+                        <img style="height: 113.48px;" src="{% static 'core/img/makita.png' %}" alt="">
                     </div>
                     <div class="bg-light p-4">
-                        <img src="{% static 'core/img/vendor-3.jpg' %}" alt="">
-                    </div>
-                    <div class="bg-light p-4">
-                        <img src="{% static 'core/img/vendor-4.jpg' %}" alt="">
-                    </div>
-                    <div class="bg-light p-4">
-                        <img src="{% static 'core/img/vendor-5.jpg' %}" alt="">
-                    </div>
-                    <div class="bg-light p-4">
-                        <img src="{% static 'core/img/vendor-6.jpg' %}" alt="">
-                    </div>
-                    <div class="bg-light p-4">
-                        <img src="{% static 'core/img/vendor-7.jpg' %}" alt="">
-                    </div>
-                    <div class="bg-light p-4">
-                        <img src="{% static 'core/img/vendor-8.jpg' %}" alt="">
+                        <img style="height: 113.48px;" src="{% static 'core/img/stanley.png' %}" alt="">
                     </div>
                 </div>
             </div>
@@ -213,4 +201,4 @@
     <!-- Vendor End -->
 
     {% endblock %}
-   
+

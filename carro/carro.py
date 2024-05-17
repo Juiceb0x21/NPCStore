@@ -76,7 +76,7 @@ class Carro:
                         'id' : producto.id
                     }
                     response = requests.post('http://127.0.0.1:5000/api/productos/actstockmas', json=json)
-                    data = response.json()# Guardar el producto actualizado
+                    data = response.json()
                     if value["cantidad"] < 1:
                         self.eliminar(producto)
                     break
