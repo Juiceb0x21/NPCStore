@@ -14,7 +14,7 @@ def index(request):
     response = requests.get('http://127.0.0.1:5000/api/productos')
     if response.status_code == 200:
         data = response.json()
-        context = {'productos': data[:4]}  # Envolver data en un diccionario
+        context = {'productos': data}  # Envolver data en un diccionario
         return render(request, 'core/index.html', context)
     else:
         return render(request, 'core/index.html', {'error': 'No se pudo obtener los productos'})
