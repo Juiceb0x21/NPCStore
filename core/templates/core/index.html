@@ -150,7 +150,11 @@
                             <div class="product-img overflow-hidden">
                                 <img class="w-100"" src="{% static '' %}core/img/{{producto.imagen}}" alt="">
                                 <div class="product-action">
+                                    {% if user.is_authenticated %}
                                     <a class="btn btn-outline-dark btn-square" href="{% url 'carro:agregar' producto.id %}"><i class="fa fa-shopping-cart"></i></a>
+                                    {% else  %}
+                                    <a class="btn btn-outline-dark btn-square" href="{% url 'login' %}"><i class="fa fa-shopping-cart"></i></a>
+                                    {% endif %}
                                     <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
                                     <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-eye"></i></a>
                                     <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
