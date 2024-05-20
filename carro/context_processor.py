@@ -11,7 +11,9 @@ def importe_total_carro(request):
 
 
 def cantidad_carro(request):
+
     cantidad=0
-    for key, value in request.session["carro"].items():
-        cantidad=cantidad+value["cantidad"]
+    if "carro" in request.session:
+        for key, value in request.session["carro"].items():
+            cantidad=cantidad+value["cantidad"]
     return {"cantidad_carro": cantidad} 
