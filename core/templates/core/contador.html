@@ -1,0 +1,50 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block contenido %}
+<div class="container py-4">
+    <h1 class="text-center mb-4">Confirmar Pagos y Registrar Entrega de Productos</h1>
+    <h2 class="mb-3">Confirmar Pagos</h2>
+    <div class="table-responsive mb-4">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID Pago</th>
+                    <th>Orden</th>
+                    <th>Método de Pago</th>
+                    <th>Monto</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>001</td>
+                    <td>ORD001</td>
+                    <td>Transferencia bancaria</td>
+                    <td>$25.000</td>
+                    <td>2024-05-19</td>
+                    <td>
+                        <button type="button" class="btn" style="background-color: #FFD333; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer;">Confirmar Pago</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>002</td>
+                    <td>ORD002</td>
+                    <td>Transferencia bancaria</td>
+                    <td>$40.000</td>
+                    <td>2024-05-20</td>
+                    <td>
+                        <button type="button" class="btn" style="background-color: #FFD333; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer;">Confirmar Pago</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2 class="mb-3">Registrar Entrega de Productos</h2>
+    <div class="alert alert-info mb-4" role="alert">
+        Recuerda registrar la entrega de productos a los clientes después de que se confirme el pago.
+    </div>
+</div>
+{% endblock %}

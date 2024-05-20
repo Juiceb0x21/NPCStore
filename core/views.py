@@ -104,6 +104,57 @@ def carrito(request):
         return render(request, 'core/cart.html', context)
     return render(request, 'core/cart.html')
 
+
+def actualizar_producto(request, producto_id):
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        categoria = request.POST.get('categoria')
+        descripcion = request.POST.get('descripcion')
+        imagen = request.POST.get('imagen')
+        marca = request.POST.get('marca')
+        nombre = request.POST.get('nombre')
+        precio = request.POST.get('precio')
+        stock = request.POST.get('stock')
+
+        # Enviar la solicitud PUT a la API para actualizar el producto
+        json_data = {
+            'categoria': categoria,
+            'descripcion': descripcion,
+            'imagen': imagen,
+            'marca': marca,
+            'nombre': nombre,
+            'precio': precio,
+            'stock': stock
+        }
+
+        try:
+            response = requests.put(f'http://127.0.0.1:5000/api/productos/{producto_id}', json=json_data)
+            response.raise_for_status()  
+        except requests.exceptions.RequestException as e:
+            return render(request, 'actualizar_producto.html', {'error': f'Error al actualizar el producto: {str(e)}'})
+
+        if response.status_code == 200:
+            # Producto actualizado correctamente
+            return redirect('index')
+        else:
+            # Ocurrió un error al actualizar el producto
+            return render(request, 'actualizar_producto.html', {'error': 'Error al actualizar el producto'})
+
+    else:
+        try:
+            response = requests.get(f'http://127.0.0.1:5000/api/productos/{producto_id}')
+            response.raise_for_status()
+            producto = response.json()
+        except requests.exceptions.RequestException as e:
+            return render(request, 'actualizar_producto.html', {'error': f'Error al obtener el producto: {str(e)}'})
+        except ValueError as e:
+            return render(request, 'actualizar_producto.html', {'error': 'La respuesta de la API no es un JSON válido'})
+
+        return render(request, 'actualizar_producto.html', {'producto': producto})
+
+
+
+
 def detalleProducto(request, producto_id):
     json = {
         'id' : producto_id
@@ -123,4 +174,27 @@ def logout(request, producto_id):
     if response.status_code == 200:
         del request.session['user_data']
         return redirect('index')
+    
 
+def bodeguero(request):
+    try:
+        response = requests.get('http://127.0.0.1:5000/api/pedidos')
+        response.raise_for_status()
+        ordenes = response.json()
+        context = {'pedidos': pedidos}
+    except requests.exceptions.RequestException as e:
+        context = {'error': f'No se pudo obtener las órdenes: {e}'}
+
+    return render(request, 'core/bodeguero.html', context)
+
+
+def contador(request):
+    try:
+        response = requests.get('http://127.0.0.1:5000/api')
+        response.raise_for_status()
+        ordenes = response.json()
+        context = {'pagos': pagos}
+    except requests.exceptions.RequestException as e:
+        context = {'error': f'No se pudo obtener los pagos: {e}'}
+
+    return render(request, 'core/contador.html', context)
