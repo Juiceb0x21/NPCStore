@@ -1,44 +1,45 @@
-from django.contrib.auth.forms import UserCreationForm
+
 from django.contrib.auth.models import User
 from django import forms
-from django.core.exceptions import ValidationError
 import requests
+ 
+class RegistroForm(forms.Form):
+    rut = forms.CharField(label='Rut', min_length=0, max_length=9)
+    nombre= forms.CharField(label='Nombre', min_length=0, max_length=40)
+    apellido= forms.CharField(label='Apellido', min_length=0, max_length=30)
+    correo= forms.CharField(label='Correo', min_length=0, max_length=150)
+    contrasena = forms.CharField(label='Contraseña', min_length=0, max_length=50)
 
-class CustomUserCreationForm(forms.Form):
-    nombre = forms.CharField(label='Nombre', min_length=4, max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    password1 = forms.CharField(label='Contraseña', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    password2 = forms.CharField(label='Confirmar Contraseña', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    def clean(self):
+        cleaned_data = super().clean()
 
-    def clean_email(self):
-        email = self.cleaned_data['email'].lower()
-        r = User.objects.filter(email=email)
-        if r.count():
-            raise  ValidationError("Correo ya existe")
-        return email
-
-    def clean_password2(self):
-        password1 = self.cleaned_data.get('password1')
-        password2 = self.cleaned_data.get('password2')
-
-        if password1 and password2 and password1 != password2:
-            raise ValidationError("Contraseñas no coinciden")
-
-        return password2
-
-
-    def save(self, commit=True):
-        response = requests.post('http://127.0.0.1:5000/api/users/register')
+        rut = cleaned_data.get('rut')
+        response = requests.get(f'http://127.0.0.1:5000/api/users?rut={rut}')
         if response.status_code == 200:
             data = response.json()
-            if data['estado'] == True:
-                user = User.objects.create_user(
-                    username=self.cleaned_data['nombre'],
-                    email=self.cleaned_data['email'],
-                    password= self.cleaned_data['password1'],
-                )
-            else:
-                print("xd")
+            if data:
+                self.add_error('rut', 'El RUT ya está registrado')
 
-        return user
+        correo = cleaned_data.get('correo')
+        response = requests.get(f'http://127.0.0.1:5000/api/users?correo={correo}')
+        if response.status_code == 200:
+            data = response.json()
+            if data:
+                self.add_error('correo', 'El correo electrónico ya está registrado')
+        return cleaned_data
+
+    def save(self, commit=True):
+        response = requests.post('http://127.0.0.1:5000/api/users/registro')
+        if response.status_code == 200:
+            data = response.json()
+            if data['estado']:
+                try:
+                    user = User.objects.create_user(
+                        username=self.cleaned_data['nombre'],
+                        email=self.cleaned_data['correo'],
+                        password=self.cleaned_data['contrasena']
+                    )
+                    return user
+                except Exception as e:
+                    print(f"Error al crear usuario: {e}")
 

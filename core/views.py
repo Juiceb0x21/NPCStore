@@ -44,11 +44,12 @@ def login(request):
             response = requests.post('http://127.0.0.1:5000/api/users/login', json=json)
             if response.status_code == 200:
                 data = response.json()
-                if data['is_connect'] == 1:
-                    request.session['user_data'] = data
-                    return redirect('index')
-                else:
-                    print("xd")
+                try:
+                    if data['is_connect'] == 1:
+                        request.session['user_data'] = data
+                        return redirect('index')
+                except Exception as e:
+                    print(f"Error al autenticar al usuario: {e}")
 
     else:
         form = loginForm()
