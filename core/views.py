@@ -113,75 +113,30 @@ def actualizar_producto(request, producto_id):
     print(f'Producto ID recibido: {producto_id}')  # Para depuración
     if request.method == 'POST':
         # Obtener los datos del formulario
-        categoria = request.POST.get('categoria')
-        descripcion = request.POST.get('descripcion')
-        imagen = request.POST.get('imagen')
-        marca = request.POST.get('marca')
-        nombre = request.POST.get('nombre')
-        precio = request.POST.get('precio')
-        stock = request.POST.get('stock')
-
-        # Obtener la lista de productos de la API
+        json = {
+            'id' : producto_id,
+            'categoria' : request.POST.get('categoria'),
+            'descripcion' : request.POST.get('descripcion'),
+            'imagen' : request.POST.get('imagen'),
+            'marca' : request.POST.get('marca'),
+            'nombre' : request.POST.get('nombre'),
+            'precio' : request.POST.get('precio'),
+            'stock' : request.POST.get('stock')
+        }
         try:
-            response = requests.get('http://127.0.0.1:5000/api/productos')
-            response.raise_for_status()
-            productos = response.json()
+            response = requests.post('http://127.0.0.1:5000/api/productos/actualizar_productos', json)
+            
+            if response.raise_for_status() == 500:
+                error_message = f'Error al obtener los productos: {str(e)}'
+                return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
+            elif response.raise_for_status() == 200:
+                "actualizado"
+
         except (HTTPError, RequestException) as e:
             error_message = f'Error al obtener los productos: {str(e)}'
             return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
-
-        # Buscar el producto a actualizar
-        producto_a_actualizar = None
-        for producto in productos:
-            if producto['id'] == producto_id:
-                producto_a_actualizar = producto
-                break
-
-        if producto_a_actualizar is None:
-            error_message = 'El producto no se encuentra.'
-            return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=404)
-
-        # Actualizar los datos del producto
-        producto_a_actualizar['categoria'] = categoria
-        producto_a_actualizar['descripcion'] = descripcion
-        producto_a_actualizar['imagen'] = imagen
-        producto_a_actualizar['marca'] = marca
-        producto_a_actualizar['nombre'] = nombre
-        producto_a_actualizar['precio'] = precio
-        producto_a_actualizar['stock'] = stock
-
-        # Actualizar el producto en la lista de productos
-        for i, producto in enumerate(productos):
-            if producto['id'] == producto_id:
-                productos[i] = producto_a_actualizar
-                break
-
-        # Redirigir a la vista 'index'
+            
         return redirect('index')
-
-    else:
-        # Obtener el producto por ID
-        producto = obtener_producto_por_id(producto_id)
-        if producto is None:
-            error_message = 'El producto no se encuentra.'
-            return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=404)
-
-        # Renderizar el contenido directamente
-        return render(request, 'core/actualizar_producto.html', {'producto': producto})
-
-
-def obtener_producto_por_id(producto_id):
-    try:
-        response = requests.get('http://127.0.0.1:5000/api/productos')
-        response.raise_for_status()
-        productos = response.json()
-        for producto in productos:
-            if producto['id'] == producto_id:
-                return producto
-        return None
-    except (HTTPError, RequestException) as e:
-        print(f'Error al obtener el producto: {str(e)}')
-        return None
 
 def detalleProducto(request, producto_id):
     json = {
@@ -208,7 +163,7 @@ def bodeguero(request):
     try:
         response = requests.get('http://127.0.0.1:5000/api/pedidos')
         response.raise_for_status()
-        ordenes = response.json()
+        pedidos = response.json()
         context = {'pedidos': pedidos}
     except requests.exceptions.RequestException as e:
         context = {'error': f'No se pudo obtener las órdenes: {e}'}
@@ -218,9 +173,9 @@ def bodeguero(request):
 
 def contador(request):
     try:
-        response = requests.get('http://127.0.0.1:5000/api')
+        response = requests.get('http://127.0.0.1:5000/api/pagos')
         response.raise_for_status()
-        ordenes = response.json()
+        pagos = response.json()
         context = {'pagos': pagos}
     except requests.exceptions.RequestException as e:
         context = {'error': f'No se pudo obtener los pagos: {e}'}
