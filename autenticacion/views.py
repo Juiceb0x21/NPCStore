@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .forms import CustomUserCreationForm
+from .forms import RegistroForm
 import requests
 
 # Create your views here.
@@ -11,7 +11,7 @@ def register(request):
         response = requests.get('http://127.0.0.1:5000/api/registro')
         if response.status_code == 200:
             user_data = response.json()
-            f = CustomUserCreationForm(user_data)
+            f = RegistroForm(user_data)
             if f.is_valid():
                 usuario = f.save()
                 messages.success(request, 'Cuenta Creada correctamente')
@@ -22,5 +22,5 @@ def register(request):
                 usuario.save()
                 return redirect('home')
     else:
-        f = CustomUserCreationForm()
+        f = RegistroForm()
     return render(request, 'registro/registro.html', {'form': f})
