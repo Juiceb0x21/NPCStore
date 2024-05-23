@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .models import *
 from django.contrib.auth import authenticate, login
@@ -15,7 +16,9 @@ from transbank.common.integration_commerce_codes import IntegrationCommerceCodes
 from transbank.common.integration_api_keys import IntegrationApiKeys
 from transbank.common.integration_type import IntegrationType
 from carro import context_processor
-
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from requests.exceptions import RequestException, HTTPError
 
 
 def index(request):
@@ -41,11 +44,12 @@ def login(request):
             response = requests.post('http://127.0.0.1:5000/api/users/login', json=json)
             if response.status_code == 200:
                 data = response.json()
-                if data['is_connect'] == 1:
-                    request.session['user_data'] = data
-                    return redirect('index')
-                else:
-                    print("xd")
+                try:
+                    if data['is_connect'] == 1:
+                        request.session['user_data'] = data
+                        return redirect('index')
+                except Exception as e:
+                    print(f"Error al autenticar al usuario: {e}")
 
     else:
         form = loginForm()
@@ -106,6 +110,7 @@ def carrito(request):
 
 
 def actualizar_producto(request, producto_id):
+    print(f'Producto ID recibido: {producto_id}')  # Para depuración
     if request.method == 'POST':
         # Obtener los datos del formulario
         categoria = request.POST.get('categoria')
@@ -116,44 +121,67 @@ def actualizar_producto(request, producto_id):
         precio = request.POST.get('precio')
         stock = request.POST.get('stock')
 
-        # Enviar la solicitud PUT a la API para actualizar el producto
-        json_data = {
-            'categoria': categoria,
-            'descripcion': descripcion,
-            'imagen': imagen,
-            'marca': marca,
-            'nombre': nombre,
-            'precio': precio,
-            'stock': stock
-        }
-
+        # Obtener la lista de productos de la API
         try:
-            response = requests.put(f'http://127.0.0.1:5000/api/productos/{producto_id}', json=json_data)
-            response.raise_for_status()  
-        except requests.exceptions.RequestException as e:
-            return render(request, 'actualizar_producto.html', {'error': f'Error al actualizar el producto: {str(e)}'})
+            response = requests.get('http://127.0.0.1:5000/api/productos')
+            response.raise_for_status()
+            productos = response.json()
+        except (HTTPError, RequestException) as e:
+            error_message = f'Error al obtener los productos: {str(e)}'
+            return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
 
-        if response.status_code == 200:
-            # Producto actualizado correctamente
-            return redirect('index')
-        else:
-            # Ocurrió un error al actualizar el producto
-            return render(request, 'actualizar_producto.html', {'error': 'Error al actualizar el producto'})
+        # Buscar el producto a actualizar
+        producto_a_actualizar = None
+        for producto in productos:
+            if producto['id'] == producto_id:
+                producto_a_actualizar = producto
+                break
+
+        if producto_a_actualizar is None:
+            error_message = 'El producto no se encuentra.'
+            return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=404)
+
+        # Actualizar los datos del producto
+        producto_a_actualizar['categoria'] = categoria
+        producto_a_actualizar['descripcion'] = descripcion
+        producto_a_actualizar['imagen'] = imagen
+        producto_a_actualizar['marca'] = marca
+        producto_a_actualizar['nombre'] = nombre
+        producto_a_actualizar['precio'] = precio
+        producto_a_actualizar['stock'] = stock
+
+        # Actualizar el producto en la lista de productos
+        for i, producto in enumerate(productos):
+            if producto['id'] == producto_id:
+                productos[i] = producto_a_actualizar
+                break
+
+        # Redirigir a la vista 'index'
+        return redirect('index')
 
     else:
-        try:
-            response = requests.get(f'http://127.0.0.1:5000/api/productos/{producto_id}')
-            response.raise_for_status()
-            producto = response.json()
-        except requests.exceptions.RequestException as e:
-            return render(request, 'actualizar_producto.html', {'error': f'Error al obtener el producto: {str(e)}'})
-        except ValueError as e:
-            return render(request, 'actualizar_producto.html', {'error': 'La respuesta de la API no es un JSON válido'})
+        # Obtener el producto por ID
+        producto = obtener_producto_por_id(producto_id)
+        if producto is None:
+            error_message = 'El producto no se encuentra.'
+            return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=404)
 
-        return render(request, 'actualizar_producto.html', {'producto': producto})
+        # Renderizar el contenido directamente
+        return render(request, 'core/actualizar_producto.html', {'producto': producto})
 
 
-
+def obtener_producto_por_id(producto_id):
+    try:
+        response = requests.get('http://127.0.0.1:5000/api/productos')
+        response.raise_for_status()
+        productos = response.json()
+        for producto in productos:
+            if producto['id'] == producto_id:
+                return producto
+        return None
+    except (HTTPError, RequestException) as e:
+        print(f'Error al obtener el producto: {str(e)}')
+        return None
 
 def detalleProducto(request, producto_id):
     json = {
