@@ -114,9 +114,12 @@ def carrito(request):
     return render(request, 'core/cart.html')
 
 
+
+
 def actualizar_producto(request: HttpRequest, producto_id: int):
     if "user_data" in request.session:
         user_data = request.session['user_data']
+
     else:
         user_data = False
 
@@ -317,3 +320,39 @@ def actualizar_rol_usuario(request, usuario_id):
                 # Hubo un error al actualizar el rol_id
                 pass
     return redirect('control_users')
+
+
+def add_producto(request):
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+        categoria = request.POST.get('categoria')
+        marca = request.POST.get('marca')
+        precio = request.POST.get('precio')
+        stock = request.POST.get('stock')
+        imagen = request.FILES.get('imagen')
+
+        # Crear un diccionario con los datos del producto
+        producto = {
+            'nombre': nombre,
+            'descripcion': descripcion,
+            'categoria': categoria,
+            'marca': marca,
+            'precio': precio,
+            'stock': stock,
+            'imagen': imagen
+        }
+
+        # Enviar los datos del producto al servidor (mediante una solicitud POST a la API)
+        url = 'http://127.0.0.1:5000/api/productos/crear'
+        response = requests.post(url, json=producto)
+
+        if response.status_code == 200:
+            # El producto se creó correctamente
+            return redirect('productos')  # Redirigir a la página de productos
+        else:
+            # Hubo un error al crear el producto
+            pass
+
+    return render(request, 'core/add_producto.html')
