@@ -126,17 +126,39 @@ def actualizar_producto(request, producto_id):
         try:
             response = requests.post('http://127.0.0.1:5000/api/productos/actualizar_productos', json)
             
-            if response.raise_for_status() == 500:
-                error_message = f'Error al obtener los productos: {str(e)}'
-                return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
-            elif response.raise_for_status() == 200:
-                "actualizado"
+            if response.raise_for_status() == 200:
+                return redirect('index')
 
         except (HTTPError, RequestException) as e:
             error_message = f'Error al obtener los productos: {str(e)}'
+            print(json)
             return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
-            
+
         return redirect('index')
+
+    else:
+        producto = obtener_producto_por_id(producto_id)
+        if producto is None:
+            error_message = 'El producto no se encuentra.'
+            return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=404)
+
+        # Renderizar el contenido directamente
+        return render(request, 'core/actualizar_producto.html', {'producto': producto})
+
+
+
+def obtener_producto_por_id(producto_id):
+    try:
+        response = requests.get('http://127.0.0.1:5000/api/productos')
+        response.raise_for_status()
+        productos = response.json()
+        for producto in productos:
+            if producto['id'] == producto_id:
+                return producto
+        return None
+    except (HTTPError, RequestException) as e:
+        print(f'Error al obtener el producto: {str(e)}')
+        return None
 
 def detalleProducto(request, producto_id):
     json = {
