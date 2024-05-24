@@ -20,6 +20,7 @@ from carro import context_processor
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from requests.exceptions import RequestException, HTTPError
+from django.http import HttpRequest
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -113,42 +114,44 @@ def carrito(request):
     return render(request, 'core/cart.html')
 
 
-def actualizar_producto(request, producto_id):
-    print(f'Producto ID recibido: {producto_id}')  # Para depuración
-    if request.method == 'POST':
-        # Obtener los datos del formulario
-        json = {
-            'id' : producto_id,
-            'categoria' : request.POST.get('categoria'),
-            'descripcion' : request.POST.get('descripcion'),
-            'imagen' : request.POST.get('imagen'),
-            'marca' : request.POST.get('marca'),
-            'nombre' : request.POST.get('nombre'),
-            'precio' : request.POST.get('precio'),
-            'stock' : request.POST.get('stock')
-        }
-        try:
-            response = requests.post('http://127.0.0.1:5000/api/productos/actualizar_productos', json)
-            
-            if response.raise_for_status() == 200:
-                return redirect('index')
-
-        except (HTTPError, RequestException) as e:
-            error_message = f'Error al obtener los productos: {str(e)}'
-            print(json)
-            return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
-
-        return redirect('index')
-
+def actualizar_producto(request: HttpRequest, producto_id: int):
+    if "user_data" in request.session:
+        user_data = request.session['user_data']
     else:
-        producto = obtener_producto_por_id(producto_id)
-        if producto is None:
-            error_message = 'El producto no se encuentra.'
-            return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=404)
+        user_data = False
 
-        # Renderizar el contenido directamente
-        return render(request, 'core/actualizar_producto.html', {'producto': producto})
+    if user_data:
+        if user_data['is_connect'] == 1:
+            if request.method == 'POST':
+                json_data = {
+                    'id': producto_id,
+                    'categoria': request.POST.get('categoria'),
+                    'descripcion': request.POST.get('descripcion'),
+                    'imagen': request.POST.get('imagen'),
+                    'marca': request.POST.get('marca'),
+                    'nombre': request.POST.get('nombre'),
+                    'precio': request.POST.get('precio'),
+                    'stock': request.POST.get('stock')
+                }
+                try:
+                    response = requests.post('http://127.0.0.1:5000/api/productos/actualizar_productos', json=json_data)
+                    response.raise_for_status()
+                    return redirect('index')
+                except (HTTPError, RequestException) as e:
+                    error_message = f'Error al actualizar el producto: {str(e)}'
+                    print(json_data)
+                    return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
+            else:
+                producto = obtener_producto_por_id(producto_id)
+                if producto is None:
+                    error_message = 'El producto no se encuentra.'
+                    return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=404)
 
+                return render(request, 'core/actualizar_producto.html', {'producto': producto})
+        else:
+            return redirect('login')
+    else:
+        return redirect('login')
 
 
 def obtener_producto_por_id(producto_id):

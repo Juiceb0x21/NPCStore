@@ -35,7 +35,7 @@
             <div class="col-lg-6 d-none d-lg-block">
                 <div class="d-inline-flex align-items-center h-100">
                     <a class="text-body mr-3" href="">Acerca de nosotros</a>
-                    <a class="text-body mr-3" href="">Contacto</a>
+                    <a class="text-body mr-3" href="{% url 'contact' %}">Contacto</a>
                 </div>
             </div>
             <div class="col-lg-6 text-center text-lg-right">
@@ -62,12 +62,7 @@
             <div class="col-lg-4 col-6 text-left">
                 <form action="">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Busca tus productos">
-                        <div class="input-group-append">
-                            <span class="input-group-text bg-transparent text-primary">
-                                <i class="fa fa-search"></i>
-                            </span>
-                        </div>
+                        <h6 class="m-0" style="color: gray;">Fuera Nicki Bravo | No mas Nicki Bravo</h6>
                     </div>
                 </form>
             </div>
@@ -123,9 +118,9 @@
                     </button>
                     <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                         <div class="navbar-nav mr-auto py-0">
-                            <a href="{% url 'index' %}" class="nav-item nav-link active">Inicio</a>
+                            <a href="{% url 'index' %}" class="nav-item nav-link">Inicio</a>
                             <a href="{% url 'productos' %}" class="nav-item nav-link">Productos</a>
-                            <a href="{% url 'contact' %}"" class="nav-item nav-link">Contacto</a>
+                            <a href="{% url 'contact' %}" class="nav-item nav-link">Contacto</a>
                         </div>
                         {% if user_data %}
                             {%  if user_data.is_connect == 1%}
