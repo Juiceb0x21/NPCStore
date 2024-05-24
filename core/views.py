@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .models import *
 from django.contrib.auth import authenticate, login
@@ -15,7 +16,9 @@ from transbank.common.integration_commerce_codes import IntegrationCommerceCodes
 from transbank.common.integration_api_keys import IntegrationApiKeys
 from transbank.common.integration_type import IntegrationType
 from carro import context_processor
-
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from requests.exceptions import RequestException, HTTPError
 
 
 def index(request):
@@ -107,54 +110,33 @@ def carrito(request):
 
 
 def actualizar_producto(request, producto_id):
+    print(f'Producto ID recibido: {producto_id}')  # Para depuración
     if request.method == 'POST':
         # Obtener los datos del formulario
-        categoria = request.POST.get('categoria')
-        descripcion = request.POST.get('descripcion')
-        imagen = request.POST.get('imagen')
-        marca = request.POST.get('marca')
-        nombre = request.POST.get('nombre')
-        precio = request.POST.get('precio')
-        stock = request.POST.get('stock')
-
-        # Enviar la solicitud PUT a la API para actualizar el producto
-        json_data = {
-            'categoria': categoria,
-            'descripcion': descripcion,
-            'imagen': imagen,
-            'marca': marca,
-            'nombre': nombre,
-            'precio': precio,
-            'stock': stock
+        json = {
+            'id' : producto_id,
+            'categoria' : request.POST.get('categoria'),
+            'descripcion' : request.POST.get('descripcion'),
+            'imagen' : request.POST.get('imagen'),
+            'marca' : request.POST.get('marca'),
+            'nombre' : request.POST.get('nombre'),
+            'precio' : request.POST.get('precio'),
+            'stock' : request.POST.get('stock')
         }
-
         try:
-            response = requests.put(f'http://127.0.0.1:5000/api/productos/{producto_id}', json=json_data)
-            response.raise_for_status()  
-        except requests.exceptions.RequestException as e:
-            return render(request, 'actualizar_producto.html', {'error': f'Error al actualizar el producto: {str(e)}'})
+            response = requests.post('http://127.0.0.1:5000/api/productos/actualizar_productos', json)
+            
+            if response.raise_for_status() == 500:
+                error_message = f'Error al obtener los productos: {str(e)}'
+                return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
+            elif response.raise_for_status() == 200:
+                "actualizado"
 
-        if response.status_code == 200:
-            # Producto actualizado correctamente
-            return redirect('index')
-        else:
-            # Ocurrió un error al actualizar el producto
-            return render(request, 'actualizar_producto.html', {'error': 'Error al actualizar el producto'})
-
-    else:
-        try:
-            response = requests.get(f'http://127.0.0.1:5000/api/productos/{producto_id}')
-            response.raise_for_status()
-            producto = response.json()
-        except requests.exceptions.RequestException as e:
-            return render(request, 'actualizar_producto.html', {'error': f'Error al obtener el producto: {str(e)}'})
-        except ValueError as e:
-            return render(request, 'actualizar_producto.html', {'error': 'La respuesta de la API no es un JSON válido'})
-
-        return render(request, 'actualizar_producto.html', {'producto': producto})
-
-
-
+        except (HTTPError, RequestException) as e:
+            error_message = f'Error al obtener los productos: {str(e)}'
+            return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
+            
+        return redirect('index')
 
 def detalleProducto(request, producto_id):
     json = {
@@ -181,7 +163,7 @@ def bodeguero(request):
     try:
         response = requests.get('http://127.0.0.1:5000/api/pedidos')
         response.raise_for_status()
-        ordenes = response.json()
+        pedidos = response.json()
         context = {'pedidos': pedidos}
     except requests.exceptions.RequestException as e:
         context = {'error': f'No se pudo obtener las órdenes: {e}'}
@@ -191,9 +173,9 @@ def bodeguero(request):
 
 def contador(request):
     try:
-        response = requests.get('http://127.0.0.1:5000/api')
+        response = requests.get('http://127.0.0.1:5000/api/pagos')
         response.raise_for_status()
-        ordenes = response.json()
+        pagos = response.json()
         context = {'pagos': pagos}
     except requests.exceptions.RequestException as e:
         context = {'error': f'No se pudo obtener los pagos: {e}'}

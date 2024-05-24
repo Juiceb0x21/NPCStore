@@ -41,7 +41,7 @@
             <div class="col-lg-6 text-center text-lg-right">
                 {% if user_data %}
                     {%  if user_data.is_connect == 1%}
-                    <a class="text-body mr-3" href="{%  url 'logout' producto_id=user_data.id %}">Cerrar sesion</a>
+                    <a class="text-body mr-3" href="{%  url 'logout' user_data.id %}">Cerrar sesion</a>
                     {% endif %}
                 {% else %}
                     <a class="text-body mr-3" href="{%  url 'login' %}">Iniciar sesion</a>
@@ -54,7 +54,7 @@
         </div>
         <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
             <div class="col-lg-4">
-                <a href="" class="text-decoration-none">
+                <a href="{%  url 'index' %}" class="text-decoration-none">
                     <span class="h1 text-uppercase text-primary bg-dark px-2">NPC</span>
                     <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">Store</span>
                 </a>
@@ -94,12 +94,21 @@
                 </a>
                 <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="navbar-vertical" style="width: calc(100% - 30px); z-index: 999;">
                     <div class="navbar-nav w-100">
+                        {%  if user_data.rol_id == 1 %}
+                        <a href="" class="nav-item nav-link">Vendedor</a>
+                        {% elif user_data.rol_id == 2 %} 
+                        <a href="" class="nav-item nav-link">Administrador</a>
+                        {% elif user_data.rol_id == 3 %} 
                         <a href="{% url 'bodeguero' %}" class="nav-item nav-link">Bodeguero</a>
+                        {% elif user_data.rol_id == 4 %} 
                         <a href="{% url 'contador' %}" class="nav-item nav-link">Contador</a>
-                        <a href="" class="nav-item nav-link">Opciones</a>
-                        <a href="" class="nav-item nav-link">Opciones</a>
-                        <a href="" class="nav-item nav-link">Opciones</a>
-                        <a href="" class="nav-item nav-link">Opciones</a>
+                        {% elif user_data.rol_id == 5 %} 
+                        <a href="" class="nav-item nav-link">Cliente</a>
+                        {% else %}
+                        <a href="{%  url 'login' %}" class="nav-item nav-link">Iniciar Sesión</a>
+                        {% endif %}
+                        
+                        
                     </div>
                 </nav>
             </div>
