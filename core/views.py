@@ -19,7 +19,6 @@ from carro import context_processor
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from requests.exceptions import RequestException, HTTPError
-from django.contrib.auth.decorators import login_required
 
 def index(request):
     try:
@@ -56,7 +55,7 @@ def login(request):
 
     return render(request, 'core/login.html', {'form': form})
 
-@login_required
+
 def obtener_productos():
     try:
         response = requests.get('http://127.0.0.1:5000/api/productos')
@@ -85,7 +84,7 @@ def productos(request):
     else:
         return render(request, 'core/shop.html', {'error': 'No se pudo obtener los productos'})
 
-@login_required
+
 def carrito(request):
     random_order = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
     random_session = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))  
@@ -110,7 +109,7 @@ def carrito(request):
         return render(request, 'core/cart.html', context)
     return render(request, 'core/cart.html')
 
-@login_required
+
 def actualizar_producto(request, producto_id):
     print(f'Producto ID recibido: {producto_id}')  # Para depuración
     if request.method == 'POST':
@@ -148,7 +147,7 @@ def actualizar_producto(request, producto_id):
         return render(request, 'core/actualizar_producto.html', {'producto': producto})
 
 
-@login_required
+
 def obtener_producto_por_id(producto_id):
     try:
         response = requests.get('http://127.0.0.1:5000/api/productos')
@@ -174,7 +173,7 @@ def detalleProducto(request, producto_id):
     context = {'producto': producto}
     return render (request, 'core/detail.html', context)
 
-@login_required
+
 def logout(request, producto_id):
     json = {
         'id' : producto_id
@@ -184,7 +183,7 @@ def logout(request, producto_id):
         del request.session['user_data']
         return redirect('index')
     
-@login_required
+
 def bodeguero(request):
     try:
         response = requests.get('http://127.0.0.1:5000/api/pedidos')
@@ -202,12 +201,12 @@ def contact(request):
     return render(request, 'core/contact.html')
 
 
-@login_required
+
 def boleta(request):
     return render(request, 'core/boleta.html')
 
 
-@login_required
+
 def contador(request):
     try:
         response = requests.get('http://127.0.0.1:5000/api/pagos')
@@ -218,7 +217,7 @@ def contador(request):
         context = {'error': f'No se pudo obtener los pagos: {e}'}
 
     return render(request, 'core/contador.html', context)
-@login_required
+
 def obtener_usuarios():
     try:
         response = requests.get('http://127.0.0.1:5000/api/users')
@@ -230,7 +229,7 @@ def obtener_usuarios():
     
 
 
-@login_required
+
 def control_users(request):
     usuarios = obtener_usuarios()
     busqueda = request.GET.get('busqueda', '')
