@@ -3,11 +3,11 @@ from django.contrib.auth.models import User
 from django import forms
 import requests
 from django.core.exceptions import ValidationError
- 
+
 def validar(value):
         if value < 999999 or value > 100000000:
             raise ValidationError("Rut inválido")
-           
+
 
 class RegistroForm(forms.Form):
     rut = forms.IntegerField(label='Rut', validators=[validar])
