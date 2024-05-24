@@ -4,6 +4,58 @@
 
 {% block contenido %}
 
-{{context}}
+
+
+<div class="container mt-3">
+    <h1 style="align-items: center; text-align: center;">Informacion de tu pedido</h1> 
+    <p style="align-items: center; text-align: center;">Aqui puedes ver el estado de tus pedidos</p>
+    <rb></rb>
+  
+    <div id="accordion">
+        <div class="card">
+          <div class="card-header">
+                <h3>Gracias por su compra: #{{context.buy_order}}</h3> 
+                <div class="progress">
+                    
+                </div>
+          </div>
+          <div id="collapseOne" class="collapse show" data-bs-parent="#accordion">
+            <div class="card-body">
+                <div class="container mt-3"> 
+                    <h1>Productos comprados:</h1>
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                          </tr>
+                        </thead>
+                        <tbody>  
+                          <tr>    
+                            <td>producto</td>
+                            <td>cantidad</td>     
+                          </tr>
+                        </tbody>
+                        <tbody>  
+                            <tr>    
+                              <td>Monto total</td>
+                              <td>${{ context.amount }}</td>     
+                            </tr>
+                          </tbody>
+                      </table>
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>Metodo de pago:</th>
+                            <td>VISA</td>
+                          </tr>
+                        </thead>
+                      </table>
+                </div> <br></br>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

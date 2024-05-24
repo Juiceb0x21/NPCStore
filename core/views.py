@@ -231,7 +231,8 @@ def boleta(request):
                         'amount': resp['amount'],
                         'buy_order': resp['buy_order']
                     }
-                    del request.session['carro']
+                    if 'carro' in request.session:
+                        del request.session['carro']
                 else:
                     context = {
                         'message': "Transacción no autorizada o fallida",
@@ -239,8 +240,8 @@ def boleta(request):
                     }
             else:
                 context = {
-                    'message': "Transacción abortada",
-                    'status': status['status']
+                    'message': "Transacción completada",
+                    'status': resp['status']
                     }
         except TransbankError as e:
             context = {
