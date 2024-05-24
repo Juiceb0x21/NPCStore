@@ -20,6 +20,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from requests.exceptions import RequestException, HTTPError
 
+
 def index(request):
     try:
         response = requests.get('http://127.0.0.1:5000/api/productos')
@@ -231,15 +232,27 @@ def obtener_usuarios():
 
 
 def control_users(request):
-    usuarios = obtener_usuarios()
-    busqueda = request.GET.get('busqueda', '')
-
-    if usuarios:
-        if busqueda:
-            usuarios = [u for u in usuarios if busqueda.lower() in u['nombre'].lower()]
-        return render(request, 'core/control_users.html', {'usuarios': usuarios, 'busqueda': busqueda})
+    if "user_data" in request.session:
+        user_data = request.session['user_data']
     else:
-        return render(request, 'core/control_users.html', {'error': 'No se pudo obtener los usuarios'})    
+        user_data = False
+    if user_data:
+        if user_data['is_connect'] == 1:
+            usuarios = obtener_usuarios()
+            busqueda = request.GET.get('busqueda', '')
+
+            if usuarios:
+                if busqueda:
+                    usuarios = [u for u in usuarios if busqueda.lower() in u['nombre'].lower()]
+                return render(request, 'core/control_users.html', {'usuarios': usuarios, 'busqueda': busqueda})
+            else:
+                return render(request, 'core/control_users.html', {'error': 'No se pudo obtener los usuarios'})    
+        else:
+            return redirect('login')
+    else:
+        return redirect('login')
+
+
     
 def actualizar_rol_usuario(request, usuario_id):
     if request.method == 'POST':
