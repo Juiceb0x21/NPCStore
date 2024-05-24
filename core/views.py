@@ -20,7 +20,6 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from requests.exceptions import RequestException, HTTPError
 
-
 def index(request):
     try:
         response = requests.get('http://127.0.0.1:5000/api/productos')
@@ -193,6 +192,12 @@ def bodeguero(request):
     return render(request, 'core/bodeguero.html', context)
 
 
+
+def contact(request):
+    return render(request, 'core/contact.html')
+
+
+
 def contador(request):
     try:
         response = requests.get('http://127.0.0.1:5000/api/pagos')
@@ -203,3 +208,27 @@ def contador(request):
         context = {'error': f'No se pudo obtener los pagos: {e}'}
 
     return render(request, 'core/contador.html', context)
+
+def obtener_usuarios():
+    try:
+        response = requests.get('http://127.0.0.1:5000/api/users')
+        response.raise_for_status()  # Lanzar una excepción para errores de solicitud
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f'Error al obtener los usuarios: {str(e)}')
+        return None
+    
+
+
+    
+def control_users(request):
+    usuarios = obtener_usuarios()
+    busqueda = request.GET.get('busqueda', '')
+
+    if usuarios:
+        if busqueda:
+            usuarios = [u for u in usuarios if busqueda.lower() in u['nombre'].lower()]
+        return render(request, 'core/control_users.html', {'usuarios': usuarios, 'busqueda': busqueda})
+    else:
+        return render(request, 'core/control_users.html', {'error': 'No se pudo obtener los usuarios'})    
+    
