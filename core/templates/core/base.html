@@ -97,7 +97,7 @@
                         {%  if user_data.rol_id == 1 %}
                         <a href="" class="nav-item nav-link">Vendedor</a>
                         {% elif user_data.rol_id == 2 %} 
-                        <a href="" class="nav-item nav-link">Administrador</a>
+                        <a href="{% url 'control_users' %}" class="nav-item nav-link">Administrador</a>
                         {% elif user_data.rol_id == 3 %} 
                         <a href="{% url 'bodeguero' %}" class="nav-item nav-link">Bodeguero</a>
                         {% elif user_data.rol_id == 4 %} 
@@ -125,7 +125,7 @@
                         <div class="navbar-nav mr-auto py-0">
                             <a href="{% url 'index' %}" class="nav-item nav-link active">Inicio</a>
                             <a href="{% url 'productos' %}" class="nav-item nav-link">Productos</a>
-                            <a href="contact.html" class="nav-item nav-link">Contacto</a>
+                            <a href="{% url 'contact' %}"" class="nav-item nav-link">Contacto</a>
                         </div>
                         {% if user_data %}
                             {%  if user_data.is_connect == 1%}

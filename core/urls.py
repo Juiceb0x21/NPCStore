@@ -11,4 +11,6 @@ urlpatterns = [
         path('bodeguero', bodeguero, name='bodeguero'),
         path('contador', contador, name='contador'),
         path('actualizar-producto/<int:producto_id>/', actualizar_producto, name='actualizar_producto'),
+        path('control_users/', control_users, name='control_users'),
+        path('contact', contact, name="contact"),
 ]
