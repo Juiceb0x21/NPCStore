@@ -242,3 +242,20 @@ def control_users(request):
     else:
         return render(request, 'core/control_users.html', {'error': 'No se pudo obtener los usuarios'})    
     
+def actualizar_rol_usuario(request, usuario_id):
+    if request.method == 'POST':
+        nuevo_rol_id = request.POST.get('nuevo_rol_id')
+        if nuevo_rol_id:
+            url = 'http://127.0.0.1:5000/api/users/actualizar_rol'
+            data = {
+                'id': usuario_id,
+                'rol_id': nuevo_rol_id
+            }
+            response = requests.post(url, json=data)
+            if response.status_code == 200:
+                # El rol_id se actualizó correctamente
+                pass
+            else:
+                # Hubo un error al actualizar el rol_id
+                pass
+    return redirect('control_users')
