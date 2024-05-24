@@ -98,6 +98,7 @@
                         <a href="" class="nav-item nav-link">Vendedor</a>
                         {% elif user_data.rol_id == 1 %} 
                         <a href="{% url 'control_users' %}" class="nav-item nav-link">Administrador</a>
+                        <a href="{% url 'add_producto' %}" class="nav-item nav-link">Agregar productos</a>
                         {% elif user_data.rol_id == 3 %} 
                         <a href="{% url 'bodeguero' %}" class="nav-item nav-link">Bodeguero</a>
                         {% elif user_data.rol_id == 4 %} 

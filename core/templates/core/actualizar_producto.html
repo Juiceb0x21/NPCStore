@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load static %}
+
 {% block contenido %}
 <div class="container-fluid">
     <div class="row px-xl-5">
@@ -17,11 +18,23 @@
                 </div>
                 <div class="form-group">
                     <label for="categoria">Categoría</label>
-                    <input type="text" class="form-control" id="categoria" name="categoria" value="{{ producto.categoria }}" required>
+                    <select class="form-control" id="categoria" name="categoria" required>
+                        <option value="1" {% if producto.categoria == 1 %}selected{% endif %}>Herramienta Manual</option>
+                        <option value="2" {% if producto.categoria == 2 %}selected{% endif %}>Herramienta Eléctrica</option>
+                        <option value="3" {% if producto.categoria == 3 %}selected{% endif %}>Pintura</option>
+                        <option value="4" {% if producto.categoria == 4 %}selected{% endif %}>Material Eléctrico</option>
+                        <option value="5" {% if producto.categoria == 5 %}selected{% endif %}>Accesorio</option>
+                        <option value="6" {% if producto.categoria == 6 %}selected{% endif %}>Artículo de Seguridad</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="marca">Marca</label>
-                    <input type="text" class="form-control" id="marca" name="marca" value="{{ producto.marca }}" required>
+                    <select class="form-control" id="marca" name="marca" required>
+                        <option value="1" {% if producto.marca == 1 %}selected{% endif %}>Bosch</option>
+                        <option value="2" {% if producto.marca == 2 %}selected{% endif %}>Makita</option>
+                        <option value="3" {% if producto.marca == 3 %}selected{% endif %}>Stanley</option>
+                        <option value="4" {% if producto.marca == 4 %}selected{% endif %}>Sika</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="precio">Precio</label>
