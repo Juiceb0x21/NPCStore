@@ -15,11 +15,13 @@ from transbank.common.options import WebpayOptions
 from transbank.common.integration_commerce_codes import IntegrationCommerceCodes
 from transbank.common.integration_api_keys import IntegrationApiKeys
 from transbank.common.integration_type import IntegrationType
+from transbank.error.transbank_error import TransbankError
 from carro import context_processor
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from requests.exceptions import RequestException, HTTPError
 from django.http import HttpRequest
+from django.views.decorators.csrf import csrf_exempt
 
 
 def index(request):
@@ -96,7 +98,7 @@ def carrito(request):
 
         buy_order = "ordenCompra" + random_order
         session_id = "sesion" + random_session
-        return_url = 'http://127.0.0.1:8000/'
+        return_url = 'http://127.0.0.1:8000/boleta/response/'
         amount = context_processor.importe_total_carro(request)['importe_total_carro']
 
         tx = Transaction(WebpayOptions(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, IntegrationType.TEST))
@@ -205,10 +207,50 @@ def contact(request):
     return render(request, 'core/contact.html')
 
 
-
+@csrf_exempt
 def boleta(request):
-    return render(request, 'core/boleta.html')
+    TBK_TOKEN = request.GET.get('token_ws')
 
+    if TBK_TOKEN:
+        try:
+            tx = Transaction(WebpayOptions(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, IntegrationType.TEST))
+
+            resp = tx.commit(TBK_TOKEN)
+
+            print(resp)
+
+            if resp['status'] != 'ABORTED':
+                resp = tx.commit(TBK_TOKEN)
+                print(resp)  # Opcional: para depuración
+
+                # Manejar diferentes estados de respuesta
+                if resp['status'] == 'AUTHORIZED':
+                    context = {
+                        'message': "Pago autorizado",
+                        'authorization_code': resp['authorization_code'],
+                        'amount': resp['amount'],
+                        'buy_order': resp['buy_order']
+                    }
+                    del request.session['carro']
+                else:
+                    context = {
+                        'message': "Transacción no autorizada o fallida",
+                        'status': resp['status']
+                    }
+            else:
+                context = {
+                    'message': "Transacción abortada",
+                    'status': status['status']
+                    }
+        except TransbankError as e:
+            context = {
+                'message': f"Error al procesar la transacción: {str(e)}"
+            }
+        
+        return render(request, 'core/boleta.html', {'context' : context})
+
+    else:
+        return redirect('carrito')
 
 
 def contador(request):
