@@ -10,9 +10,10 @@ urlpatterns = [
         path("logout/<int:producto_id>/", logout, name="logout"),
         path('bodeguero', bodeguero, name='bodeguero'),
         path('contador', contador, name='contador'),
-        path('actualizar-producto/<int:producto_id>/', actualizar_producto, name='actualizar_producto'),
+        path('actualizar_producto/<int:producto_id>/', actualizar_producto, name='actualizar_producto'),
         path('control_users/', control_users, name='control_users'),
         path('contact', contact, name="contact"),
         path('boleta', boleta, name="boleta"),
         path('add_producto/', add_producto, name='add_producto'),
+        path('boleta/response/', boleta, name="boleta"),
 ]

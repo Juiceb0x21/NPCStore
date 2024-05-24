@@ -15,10 +15,13 @@ from transbank.common.options import WebpayOptions
 from transbank.common.integration_commerce_codes import IntegrationCommerceCodes
 from transbank.common.integration_api_keys import IntegrationApiKeys
 from transbank.common.integration_type import IntegrationType
+from transbank.error.transbank_error import TransbankError
 from carro import context_processor
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from requests.exceptions import RequestException, HTTPError
+from django.http import HttpRequest
+from django.views.decorators.csrf import csrf_exempt
 
 
 def index(request):
@@ -95,7 +98,7 @@ def carrito(request):
 
         buy_order = "ordenCompra" + random_order
         session_id = "sesion" + random_session
-        return_url = 'http://127.0.0.1:8000/'
+        return_url = 'http://127.0.0.1:8000/boleta/response/'
         amount = context_processor.importe_total_carro(request)['importe_total_carro']
 
         tx = Transaction(WebpayOptions(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, IntegrationType.TEST))
@@ -111,42 +114,47 @@ def carrito(request):
     return render(request, 'core/cart.html')
 
 
-def actualizar_producto(request, producto_id):
-    print(f'Producto ID recibido: {producto_id}')  # Para depuración
-    if request.method == 'POST':
-        # Obtener los datos del formulario
-        json = {
-            'id' : producto_id,
-            'categoria' : request.POST.get('categoria'),
-            'descripcion' : request.POST.get('descripcion'),
-            'imagen' : request.FILES.get('imagen'),
-            'marca' : request.POST.get('marca'),
-            'nombre' : request.POST.get('nombre'),
-            'precio' : request.POST.get('precio'),
-            'stock' : request.POST.get('stock')
-        }
-        try:
-            response = requests.post('http://127.0.0.1:5000/api/productos/actualizar_productos', json)
-            
-            if response.raise_for_status() == 200:
-                return redirect('index')
 
-        except (HTTPError, RequestException) as e:
-            error_message = f'Error al obtener los productos: {str(e)}'
-            print(json)
-            return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
 
-        return redirect('index')
+def actualizar_producto(request: HttpRequest, producto_id: int):
+    if "user_data" in request.session:
+        user_data = request.session['user_data']
 
     else:
-        producto = obtener_producto_por_id(producto_id)
-        if producto is None:
-            error_message = 'El producto no se encuentra.'
-            return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=404)
+        user_data = False
 
-        # Renderizar el contenido directamente
-        return render(request, 'core/actualizar_producto.html', {'producto': producto})
+    if user_data:
+        if user_data['is_connect'] == 1:
+            if request.method == 'POST':
+                json_data = {
+                    'id': producto_id,
+                    'categoria': request.POST.get('categoria'),
+                    'descripcion': request.POST.get('descripcion'),
+                    'imagen': request.POST.get('imagen'),
+                    'marca': request.POST.get('marca'),
+                    'nombre': request.POST.get('nombre'),
+                    'precio': request.POST.get('precio'),
+                    'stock': request.POST.get('stock')
+                }
+                try:
+                    response = requests.post('http://127.0.0.1:5000/api/productos/actualizar_productos', json=json_data)
+                    response.raise_for_status()
+                    return redirect('index')
+                except (HTTPError, RequestException) as e:
+                    error_message = f'Error al actualizar el producto: {str(e)}'
+                    print(json_data)
+                    return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
+            else:
+                producto = obtener_producto_por_id(producto_id)
+                if producto is None:
+                    error_message = 'El producto no se encuentra.'
+                    return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=404)
 
+                return render(request, 'core/actualizar_producto.html', {'producto': producto})
+        else:
+            return redirect('login')
+    else:
+        return redirect('login')
 
 
 def obtener_producto_por_id(producto_id):
@@ -202,10 +210,50 @@ def contact(request):
     return render(request, 'core/contact.html')
 
 
-
+@csrf_exempt
 def boleta(request):
-    return render(request, 'core/boleta.html')
+    TBK_TOKEN = request.GET.get('token_ws')
 
+    if TBK_TOKEN:
+        try:
+            tx = Transaction(WebpayOptions(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, IntegrationType.TEST))
+
+            resp = tx.commit(TBK_TOKEN)
+
+            print(resp)
+
+            if resp['status'] != 'ABORTED':
+                resp = tx.commit(TBK_TOKEN)
+                print(resp)  # Opcional: para depuración
+
+                # Manejar diferentes estados de respuesta
+                if resp['status'] == 'AUTHORIZED':
+                    context = {
+                        'message': "Pago autorizado",
+                        'authorization_code': resp['authorization_code'],
+                        'amount': resp['amount'],
+                        'buy_order': resp['buy_order']
+                    }
+                    del request.session['carro']
+                else:
+                    context = {
+                        'message': "Transacción no autorizada o fallida",
+                        'status': resp['status']
+                    }
+            else:
+                context = {
+                    'message': "Transacción abortada",
+                    'status': status['status']
+                    }
+        except TransbankError as e:
+            context = {
+                'message': f"Error al procesar la transacción: {str(e)}"
+            }
+        
+        return render(request, 'core/boleta.html', {'context' : context})
+
+    else:
+        return redirect('carrito')
 
 
 def contador(request):
