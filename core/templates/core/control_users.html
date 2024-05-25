@@ -41,7 +41,7 @@
                 <td>{{ usuario.correo }}</td>
                 <td>{{ usuario.contrasena }}</td>
                 <td>
-                    <form method="post" action="{}" class="form-inline">
+                    <form method="post" action="{% url 'actualizar_rol' usuario.id %}" class="form-inline">
                         {% csrf_token %}
                         <select name="nuevo_rol_id" class="form-control mr-2">
                             <option value="" disabled selected>Seleccionar rol</option>
