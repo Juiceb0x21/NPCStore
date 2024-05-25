@@ -323,36 +323,39 @@ def actualizar_rol_usuario(request, usuario_id):
 
 
 def add_producto(request):
-    if request.method == 'POST':
-        # Obtener los datos del formulario
-        nombre = request.POST.get('nombre')
-        descripcion = request.POST.get('descripcion')
-        categoria = request.POST.get('categoria')
-        marca = request.POST.get('marca')
-        precio = request.POST.get('precio')
-        stock = request.POST.get('stock')
-        imagen = request.FILES.get('imagen')
+    try:
+        if request.method == 'POST':
+            # Obtener los datos del formulario
+            nombre = request.POST.get('nombre')
+            descripcion = request.POST.get('descripcion')
+            categoria = request.POST.get('categoria')
+            marca = request.POST.get('marca')
+            precio = request.POST.get('precio')
+            stock = request.POST.get('stock')
+            imagen = request.FILES.get('imagen')
 
-        # Crear un diccionario con los datos del producto
-        producto = {
-            'nombre': nombre,
-            'descripcion': descripcion,
-            'categoria': categoria,
-            'marca': marca,
-            'precio': precio,
-            'stock': stock,
-            'imagen': imagen
-        }
+            print(imagen)
+            # Crear un diccionario con los datos del producto
+            producto = {
+                "nombre": nombre,
+                "descripcion": descripcion,
+                "categoria": categoria,
+                "marca": marca,
+                "precio": precio,
+                "stock": stock,
+                "imagen": imagen.name
+            }
 
-        # Enviar los datos del producto al servidor (mediante una solicitud POST a la API)
-        url = 'http://127.0.0.1:5000/api/productos/crear'
-        response = requests.post(url, json=producto)
+            
+            # Enviar los datos del producto al servidor (mediante una solicitud POST a la API)
+            response = requests.post('http://127.0.0.1:5000/api/productos/add', json=producto)
 
-        if response.status_code == 200:
-            # El producto se creó correctamente
-            return redirect('productos')  # Redirigir a la página de productos
-        else:
-            # Hubo un error al crear el producto
-            pass
+            if response.status_code == 200:
+                pass
+            else:
+                pass
+
+    except Exception as e:
+        print(f"error: {e}")
 
     return render(request, 'core/add_producto.html')
