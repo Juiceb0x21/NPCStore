@@ -97,7 +97,9 @@
                                     {% endif %}
                                     <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
                                     <a class="btn btn-outline-dark btn-square" href="{% url 'detalleProducto' producto.id %}"><i class="fa fa-eye"></i></a>
+                                    {% if user_data.rol_id == 1 %} 
                                     <a class="btn btn-outline-dark btn-square" href="{% url 'actualizar_producto' producto.id %}"><i class="fa fa-exchange-alt"></i></a>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="text-center py-4">
