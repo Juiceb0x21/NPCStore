@@ -3,57 +3,37 @@
 {% block contenido %}
 <div class="container">
     <h1 style="text-align: center; margin-bottom: 20px;">Órdenes de Pedido</h1>
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-        <thead>
-            <tr style="background-color: #f2f2f2;">
-                <th style="padding: 10px; text-align: left;">Número de Orden</th>
-                <th style="padding: 10px; text-align: left;">Productos</th>
-                <th style="padding: 10px; text-align: left;">Estado</th>
-                <th style="padding: 10px; text-align: left;">Fecha de Creación</th>
-                <th style="padding: 10px; text-align: center;">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr style="border-bottom: 1px solid #ddd;">
-                <td style="padding: 10px;">#ORD001</td>
-                <td style="padding: 10px;">
-                    Martillo (2)<br>
-                    Clavos (1 caja)
-                </td>
-                <td style="padding: 10px; color: #e67e22;">Pendiente</td>
-                <td style="padding: 10px;">2023-05-19 10:30:00</td>
-                <td style="padding: 10px; text-align: center;">
-                    <button style="background-color: #FFD333; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer;">Aceptar</button>
-                    <button style="background-color: #bdc3c7; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: not-allowed;" disabled>Preparar</button>
-                </td>
-            </tr>
-            <tr style="border-bottom: 1px solid #ddd;">
-                <td style="padding: 10px;">#ORD002</td>
-                <td style="padding: 10px;">
-                    Destornillador (1)<br>
-                    Tornillos (50 unidades)
-                </td>
-                <td style="padding: 10px; color: #f1c40f;">En preparación</td>
-                <td style="padding: 10px;">2023-05-18 15:45:00</td>
-                <td style="padding: 10px; text-align: center;">
-                    <button style="background-color: #bdc3c7; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: not-allowed;" disabled>Aceptar</button>
-                    <button style="background-color: #FFD333; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer;">Preparar</button>
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 10px;">#ORD003</td>
-                <td style="padding: 10px;">
-                    Pintura (5 galones)<br>
-                    Brochas (3)
-                </td>
-                <td style="padding: 10px; color: #27ae60;">Entregado</td>
-                <td style="padding: 10px;">2023-05-17 09:15:00</td>
-                <td style="padding: 10px; text-align: center;">
-                    <button style="background-color: #bdc3c7; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: not-allowed;" disabled>Aceptar</button>
-                    <button style="background-color: #bdc3c7; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: not-allowed;" disabled>Preparar</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+
+    {% if error %}
+        <p>{{ error }}</p>
+    {% else %}
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="padding: 10px; text-align: left;">Número de Orden</th>
+                    <th style="padding: 10px; text-align: left;">Productos</th>
+                    <th style="padding: 10px; text-align: left;">Estado</th>
+                    <th style="padding: 10px; text-align: left;">Fecha de Creación</th>
+                    <th style="padding: 10px; text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pedido in pedidos %}
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 10px;">{{ pedido.num_orden }}</td>
+                    <td style="padding: 10px;">
+                        {% for linea in pedido.lineas_pedido %}
+                            {{ linea.producto.nombre }} ({{ linea.cantidad }})<br>
+                        {% endfor %}
+                    </td>
+                    <td style="padding: 10px; color: #e67e22;">{{ pedido.estado }}</td>
+                    <td style="padding: 10px;">{{ pedido.fecha_creacion }}</td>
+                    <td style="padding: 10px; text-align: center;">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 </div>
 {% endblock %}

@@ -205,7 +205,7 @@ def logout(request, producto_id):
 
 def bodeguero(request):
     try:
-        response = requests.get('http://127.0.0.1:5000/api/pedidos')
+        response = requests.get('http://127.0.0.1:5000/api/pedidos/get_pedido_linea')
         response.raise_for_status()
         pedidos = response.json()
         context = {'pedidos': pedidos}
