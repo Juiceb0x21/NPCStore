@@ -27,17 +27,32 @@ from django.contrib import messages
 
 
 def index(request):
-    try:
-        response = requests.get('http://127.0.0.1:5000/api/productos')
-        response.raise_for_status() 
-        data = response.json()
-        context = {'productos': data[:4]} 
-    except requests.exceptions.RequestException as e:
-        context = {'error': f'No se pudo obtener los productos: {e}'}
-    
-    return render(request, 'core/index.html', context)
-    
-
+    if request.method == 'POST':
+        
+        try:
+            
+            id = request.POST.get('id')
+            idp = {
+                    'id': id
+                }
+            response = requests.post(f'http://127.0.0.1:5000/api/productos/delete_producto', json=idp)
+            
+            if response.status_code == 200:
+                return redirect('index')
+            else:
+                pass
+        except Exception as e:
+            pass
+    else:
+        try:
+            response = requests.get('http://127.0.0.1:5000/api/productos')
+            response.raise_for_status() 
+            data = response.json()
+            context = {'productos': data[:4]} 
+        except requests.exceptions.RequestException as e:
+            context = {'error': f'No se pudo obtener los productos: {e}'}
+        
+        return render(request, 'core/index.html', context)
 
 def mis_pedidos(request):
     if "user_data" in request.session:
