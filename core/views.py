@@ -39,11 +39,24 @@ def index(request):
     
 
 
-
 def mis_pedidos(request):
-   
-    return render(request, 'core/mis_pedidos.html')
+    if "user_data" in request.session:
+        user_data = request.session['user_data']
+        user_id = user_data['id']
+        print(user_data)
+    else:
+        # El usuario no está autenticado, redirigir a la página de inicio de sesión
+        return redirect('login')
 
+    try:
+        response = requests.get(f'http://127.0.0.1:5000/api/pedidos/get_pedido_linea_iduser/{user_id}')
+        response.raise_for_status()
+        pedidos = response.json()
+        context = {'pedidos': pedidos}
+    except requests.exceptions.RequestException as e:
+        context = {'error': f'No se pudo obtener los pedidos: {e}'}
+
+    return render(request, 'core/mis_pedidos.html', context)
 
 def login(request):
     if request.method == 'POST':
@@ -249,16 +262,16 @@ def contact(request):
     return render(request, 'core/contact.html')
 
 
+
 @csrf_exempt
 def boleta(request):
     TBK_TOKEN = request.GET.get('token_ws')
-
     if TBK_TOKEN:
         try:
             tx = Transaction(WebpayOptions(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, IntegrationType.TEST))
             resp = tx.commit(TBK_TOKEN)
-
             if resp['status'] != 'ABORTED':
+                resp = tx.commit(TBK_TOKEN)
                 if resp['status'] == 'AUTHORIZED':
                     context = {
                         'message': "Pago autorizado",
@@ -270,51 +283,42 @@ def boleta(request):
                     if "user_data" in request.session:
                         user_data = request.session['user_data']
                         json = {
-                            "id_usuario": user_data['id'],
-                            "num_orden": context['buy_order'],
-                            "monto": context['amount']
+                            "id_usuario" : user_data['id'],
+                            "num_orden" : context['buy_order'],
+                            "monto" : context['amount']
                         }
                         if 'carro' in request.session:
                             response = requests.post('http://127.0.0.1:5000/api/pedidos/add', json=json)
-                            id_pedido = response.json().get('id_pedido')
+                            id_pedido = response.json()['id_pedido']
                             procesar_pedido(request, id_pedido, user_data['id'])
-
                             if id_pedido:
-                                pedido = {"id_pedido": id_pedido}
+                                pedido = {
+                                    "id_pedido" : id_pedido
+                                }
                                 pedido_response = requests.post('http://127.0.0.1:5000/api/pedidos/get_pedido_linea_idpedido', json=pedido)
-                                pedido_data = pedido_response.json()
-                                
-                                context['productos'] = pedido_data.get('productos', [])
-
-                                print(pedido_response.json())
-
-                                if 'carro' in request.session:
-                                    del request.session['carro']
-
-                    return render(request, 'core/boleta.html', {'context': context})
+                            
+                            
+                            print(pedido_response.json())
+                            if 'carro' in request.session:
+                                del request.session['carro'] 
+                        return render(request, 'core/boleta.html', {'context' : context})
                 else:
                     context = {
                         'message': "Transacción no autorizada o fallida",
-                        'status': resp['status'],
-                        'response_code': resp.get('response_code', 'No disponible'),
-                        'error_message': resp.get('error_message', 'No disponible')
+                        'status': resp['status']
                     }
-                    return render(request, 'core/error.html', {'context': context})
+                    return render(request, 'core/error.html', {'context' : context})
             else:
                 context = {
                     'message': "Transacción Fallida",
-                    'status': resp['status'],
-                    'response_code': resp.get('response_code', 'No disponible'),
-                    'error_message': resp.get('error_message', 'No disponible')
+                    'status': resp['status']
                 }
-                return render(request, 'core/error.html', {'context': context})
+                return render(request, 'core/error.html', {'context' : context})
         except TransbankError as e:
             context = {
                 'message': f"Error al procesar la transacción: {str(e)}",
-                'status': 'Desconocido',
-                'error_details': str(e)
+                'status': 'Desconocido'
             }
-            return render(request, 'core/error.html', {'context': context})
     else:
         return redirect('carrito')
 

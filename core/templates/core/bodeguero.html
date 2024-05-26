@@ -22,7 +22,7 @@
                 <tr style="background-color: #f2f2f2;">
                     <th style="padding: 10px; text-align: left;"><strong>Número de Pedido</strong></th>
                     <th style="padding: 10px; text-align: left;"><strong>Productos</strong></th>
-                    <th style="padding: 10px; text-align: left;"><strong>Estado</strong></th>
+                    <th style="padding: 10px; text-align: left;"><strong>Estado</strong></th> <!-- Aumenta el ancho aquí -->
                     <th style="padding: 10px; text-align: left;"><strong>Fecha de Creación</strong></th>
                     <th style="padding: 10px; text-align: left;"><strong>Tipo de Pago</strong></th>
                     <th style="padding: 10px; text-align: right;"><strong>Monto Total</strong></th>
@@ -38,12 +38,12 @@
                             <strong>{{ linea.nombre }}</strong> ({{ linea.cantidad }}) - ${{ linea.precio }}<br>
                         {% endfor %}
                     </td>
-                    <td style="padding: 10px; color: #e67e22;">
+                    <td style="padding: 10px; color: #e67e22; width: 300px;"> <!-- Aumenta el ancho aquí -->
                         <form method="post">
                             {% csrf_token %}
                             <input type="hidden" name="pedido_id" value="{{ pedido.id }}">
                             <div class="form-group">
-                                <select class="form-control" name="nuevo_estado" id="estado_pedido_{{ pedido.id }}">
+                                <select class="form-control" name="nuevo_estado" id="estado_pedido_{{ pedido.id }}" style="width: 65%; font-size: 16px; padding: 10px;"> <!-- Aumenta el tamaño de la fuente y padding -->
                                     <option value="1" {% if pedido.estado == "Pendiente" %}selected{% endif %}>Pendiente</option>
                                     <option value="2" {% if pedido.estado == "En preparación" %}selected{% endif %}>En preparación</option>
                                     <option value="3" {% if pedido.estado == "Entregado" %}selected{% endif %}>Entregado</option>
