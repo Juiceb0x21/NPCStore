@@ -212,6 +212,28 @@ def bodeguero(request):
     except requests.exceptions.RequestException as e:
         context = {'error': f'No se pudo obtener las órdenes: {e}'}
 
+    if request.method == 'POST':
+        pedido_id = request.POST.get('pedido_id')
+        nuevo_estado = request.POST.get('nuevo_estado')
+
+        if pedido_id and nuevo_estado:
+            data = {
+                'id_pedido': pedido_id,
+                'nuevo_estado': nuevo_estado
+            }
+
+            try:
+                response = requests.post('http://127.0.0.1:5000/api/pedidos/actualizar_estado', json=data)
+                response.raise_for_status()
+
+                if response.status_code == 200:
+                    messages.success(request, 'Estado del pedido actualizado correctamente')
+                else:
+                    messages.error(request, 'Error al actualizar el estado del pedido')
+
+            except requests.exceptions.RequestException as e:
+                messages.error(request, f'Error al actualizar el estado del pedido: {e}')
+
     return render(request, 'core/bodeguero.html', context)
 
 
