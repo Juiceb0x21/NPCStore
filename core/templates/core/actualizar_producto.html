@@ -6,6 +6,27 @@
     <div class="row px-xl-5">
         <div class="col-md-8 offset-md-2">
             <h1 class="mb-4">Actualizar Producto</h1>
+
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'success' %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form-group">
@@ -54,4 +75,11 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Inicializar los elementos de alerta descartables de Bootstrap
+    $('.alert').alert();
+</script>
 {% endblock %}

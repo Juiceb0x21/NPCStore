@@ -81,44 +81,48 @@
     <div class="container-fluid pt-5 pb-3">
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Productos destacados</span></h2>
         {% if productos %}
-            <div class="row px-xl-5">
-                {% for producto in productos %}
-                    <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                        <div class="product-item bg-light mb-4">
-                            <div class="product-img overflow-hidden">
-                                <img class="w-100"" src="{% static '' %}core/img/{{producto.imagen}}" alt="">
-                                <div class="product-action">
-                                    {% if user_data %}
-                                        {% if user_data.is_connect == 1%}
-                                            <a class="btn btn-outline-dark btn-square" href="{% url 'carro:agregar' producto.id %}"><i class="fa fa-shopping-cart"></i></a>
-                                        {% endif %}
-                                    {% else %}
-                                        <a class="btn btn-outline-dark btn-square" href="{% url 'login'%}"><i class="fa fa-shopping-cart"></i></a>
+        <div class="row px-xl-5">
+            {% for producto in productos %}
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img overflow-hidden">
+                        <img class="w-100" src="{% static '' %}core/img/{{producto.imagen}}" alt="">
+                        <div class="product-action">
+                            {% if producto.stock > 0 %}
+                                {% if user_data %}
+                                    {% if user_data.is_connect == 1 %}
+                                        <a class="btn btn-outline-dark btn-square" href="{% url 'carro:agregar' producto.id %}"><i class="fa fa-shopping-cart"></i></a>
                                     {% endif %}
-                                    <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                                    <a class="btn btn-outline-dark btn-square" href="{% url 'detalleProducto' producto.id %}"><i class="fa fa-eye"></i></a>
-                                    <a class="btn btn-outline-dark btn-square" href="{% url 'actualizar_producto' producto.id %}"><i class="fa fa-exchange-alt"></i></a>
-                                </div>
-                            </div>
-                            <div class="text-center py-4">
-                                <a class="h6 text-decoration-none text-truncate" href="">{{ producto.nombre }}</a>
-                                <div class="d-flex align-items-center justify-content-center mt-2">
-                                    <h5>Precio: ${{ producto.precio }}</h5><h6 class="text-muted ml-2"></h6>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <small>Stock: ({{ producto.stock }})</small>
-                                </div>
-                                <!-- Agregar el botón de actualizar aquí -->
-
-                            </div>
+                                {% else %}
+                                    <a class="btn btn-outline-dark btn-square" href="{% url 'login' %}"><i class="fa fa-shopping-cart"></i></a>
+                                {% endif %}
+                            {% else %}
+                                <span class="btn btn-outline-dark btn-square disabled">Sin stock</span>
+                            {% endif %}
+                            <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
+                            <a class="btn btn-outline-dark btn-square" href="{% url 'detalleProducto' producto.id %}"><i class="fa fa-eye"></i></a>
+                            {% if user_data.rol_id == 1 %}
+                                <a class="btn btn-outline-dark btn-square" href="{% url 'actualizar_producto' producto.id %}"><i class="fa fa-exchange-alt"></i></a>
+                            {% endif %}
                         </div>
                     </div>
-                {% endfor %}
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">{{ producto.nombre }}</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>Precio: ${{ producto.precio }}</h5><h6 class="text-muted ml-2"></h6>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <small>Stock: ({{ producto.stock }})</small>
+                        </div>
+                    </div>
+                </div>
             </div>
+            {% endfor %}
+        </div>
         {% else %}
-            <div class="d-flex align-items-center justify-content-center">
-                <small>No hay productos disponibles.</small>
-            </div>
+        <div class="d-flex align-items-center justify-content-center">
+            <small>No hay productos disponibles.</small>
+        </div>
         {% endif %}
     </div>
 

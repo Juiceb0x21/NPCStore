@@ -23,6 +23,7 @@ from django.shortcuts import render, redirect
 from requests.exceptions import RequestException, HTTPError
 from django.http import HttpRequest
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
 
 
 def index(request):
@@ -120,30 +121,40 @@ def carrito(request):
 def actualizar_producto(request: HttpRequest, producto_id: int):
     if "user_data" in request.session:
         user_data = request.session['user_data']
-
     else:
         user_data = False
 
     if user_data:
         if user_data['is_connect'] == 1:
             if request.method == 'POST':
-                json_data = {
-                    'id': producto_id,
-                    'categoria': request.POST.get('categoria'),
-                    'descripcion': request.POST.get('descripcion'),
-                    'imagen': request.POST.get('imagen'),
-                    'marca': request.POST.get('marca'),
-                    'nombre': request.POST.get('nombre'),
-                    'precio': request.POST.get('precio'),
-                    'stock': request.POST.get('stock')
-                }
-                try:
-                    response = requests.post('http://127.0.0.1:5000/api/productos/actualizar_productos', json=json_data)
-                    response.raise_for_status()
-                    return redirect('index')
-                except (HTTPError, RequestException) as e:
-                    error_message = f'Error al actualizar el producto: {str(e)}'
-                    return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
+                stock = request.POST.get('stock')
+                precio = request.POST.get('precio')
+
+                # Validar el stock y el precio
+                if int(stock) <= 0:
+                    messages.error(request, 'El stock debe ser mayor a 0.')
+                elif float(precio) <= 0:
+                    messages.error(request, 'El precio debe ser mayor a 0.')
+                else:
+                    json_data = {
+                        'id': producto_id,
+                        'categoria': request.POST.get('categoria'),
+                        'descripcion': request.POST.get('descripcion'),
+                        'imagen': request.POST.get('imagen'),
+                        'marca': request.POST.get('marca'),
+                        'nombre': request.POST.get('nombre'),
+                        'precio': precio,
+                        'stock': stock
+                    }
+                    try:
+                        response = requests.post('http://127.0.0.1:5000/api/productos/actualizar_productos', json=json_data)
+                        response.raise_for_status()
+                        messages.success(request, 'Producto actualizado correctamente.')
+                        return redirect('index')
+                    except (HTTPError, RequestException) as e:
+                        error_message = f'Error al actualizar el producto: {str(e)}'
+                        print(json_data)
+                        messages.error(request, error_message)
             else:
                 producto = obtener_producto_por_id(producto_id)
                 if producto is None:
@@ -155,7 +166,6 @@ def actualizar_producto(request: HttpRequest, producto_id: int):
             return redirect('login')
     else:
         return redirect('login')
-
 
 def obtener_producto_por_id(producto_id):
     try:
@@ -322,6 +332,8 @@ def control_users(request):
 
 
     
+from django.contrib import messages
+
 def actualizar_rol_usuario(request, usuario_id):
     if request.method == 'POST':
         nuevo_rol_id = request.POST.get('nuevo_rol_id')
@@ -333,17 +345,15 @@ def actualizar_rol_usuario(request, usuario_id):
             }
             response = requests.post(url, json=data)
             if response.status_code == 200:
-                # El rol_id se actualizó correctamente
-                pass
+                messages.success(request, 'El rol del usuario ha sido actualizado correctamente.')
             else:
-                # Hubo un error al actualizar el rol_id
-                pass
-    return redirect('control_users')
+                messages.error(request, 'Hubo un error al actualizar el rol del usuario.')
+        return redirect('control_users')
 
 
 def add_producto(request):
-    try:
-        if request.method == 'POST':
+    if request.method == 'POST':
+        try:
             # Obtener los datos del formulario
             nombre = request.POST.get('nombre')
             descripcion = request.POST.get('descripcion')
@@ -353,27 +363,30 @@ def add_producto(request):
             stock = request.POST.get('stock')
             imagen = request.FILES.get('imagen')
 
-            # Crear un diccionario con los datos del producto
-            producto = {
-                "nombre": nombre,
-                "descripcion": descripcion,
-                "categoria": categoria,
-                "marca": marca,
-                "precio": precio,
-                "stock": stock,
-                "imagen": imagen.name
-            }
-
-            
-            # Enviar los datos del producto al servidor (mediante una solicitud POST a la API)
-            response = requests.post('http://127.0.0.1:5000/api/productos/add', json=producto)
-
-            if response.status_code == 200:
-                pass
+            # Validar el stock y el precio
+            if int(stock) <= 0:
+                messages.error(request, 'El stock debe ser mayor a 0.')
+            elif float(precio) <= 0:
+                messages.error(request, 'El precio debe ser mayor a 0.')
             else:
-                pass
+                # Crear un diccionario con los datos del producto
+                producto = {
+                    "nombre": nombre,
+                    "descripcion": descripcion,
+                    "categoria": categoria,
+                    "marca": marca,
+                    "precio": precio,
+                    "stock": stock,
+                    "imagen": imagen.name
+                }
 
-    except Exception as e:
-        print(f"error: {e}")
+                response = requests.post('http://127.0.0.1:5000/api/productos/add', json=producto)
+                if response.status_code == 200:
+                    messages.success(request, 'Producto agregado correctamente.')
+                else:
+                    messages.error(request, 'Error al agregar el producto.')
+
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
 
     return render(request, 'core/add_producto.html')
