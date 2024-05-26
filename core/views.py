@@ -43,13 +43,16 @@ def mis_pedidos(request):
     if "user_data" in request.session:
         user_data = request.session['user_data']
         user_id = user_data['id']
-        print(user_data)
+        print(user_id)
     else:
         # El usuario no está autenticado, redirigir a la página de inicio de sesión
         return redirect('login')
 
     try:
-        response = requests.get(f'http://127.0.0.1:5000/api/pedidos/get_pedido_linea_iduser/{user_id}')
+        json = {
+                    "id_usuario": user_id
+                }
+        response = requests.post('http://127.0.0.1:5000/api/pedidos/get_pedido_linea_iduser', json=json)
         response.raise_for_status()
         pedidos = response.json()
         context = {'pedidos': pedidos}

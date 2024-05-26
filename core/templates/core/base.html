@@ -121,7 +121,11 @@
                             <a href="{% url 'index' %}" class="nav-item nav-link">Inicio</a>
                             <a href="{% url 'productos' %}" class="nav-item nav-link">Productos</a>
                             <a href="{% url 'contact' %}" class="nav-item nav-link">Contacto</a>
-                            <a href="{% url 'mis_pedidos' %}" class="nav-item nav-link">Mis pedidos</a>
+                            {% if user_data %}
+                                    {%  if user_data.is_connect == 1%}
+                                    <a href="{% url 'mis_pedidos' %}" class="nav-item nav-link">Mis pedidos</a>
+                                    {% endif %}
+                            {% endif %}
                         </div>
                         {% if user_data %}
                             {%  if user_data.is_connect == 1%}
