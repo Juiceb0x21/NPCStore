@@ -2,7 +2,42 @@
 {% load static %}
 
 {% block contenido %}
-
-{{context}}
-
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h2>Error en la Transacción</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-danger">{{ context.message }}</p>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Detalle</th>
+                        <th scope="col">Información</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Estado:</strong></td>
+                        <td>{{ context.status }}</td>
+                    </tr>
+                    {% if context.response_code %}
+                        <tr>
+                            <td><strong>Código de Respuesta:</strong></td>
+                            <td>{{ context.response_code }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if context.error_message %}
+                        <tr>
+                            <td><strong>Mensaje de Error:</strong></td>
+                            <td>{{ context.error_message }}</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            <a href="{% url 'carrito' %}" class="btn btn-primary">Volver al Carrito</a>
+            <a href="{% url 'index' %}" class="btn btn-secondary">Volver al Inicio</a>
+        </div>
+    </div>
+</div>
 {% endblock %}
