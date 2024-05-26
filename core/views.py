@@ -224,11 +224,12 @@ def bodeguero(request):
             try:
                 response = requests.post('http://127.0.0.1:5000/api/pedidos/actualizar_estado', json=data)
                 response.raise_for_status()
-
+                print(response.json())
                 if response.status_code == 200:
                     messages.success(request, 'Estado del pedido actualizado correctamente')
                 else:
                     messages.error(request, 'Error al actualizar el estado del pedido')
+                return redirect('bodeguero')
 
             except requests.exceptions.RequestException as e:
                 messages.error(request, f'Error al actualizar el estado del pedido: {e}')
