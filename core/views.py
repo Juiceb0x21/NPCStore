@@ -153,7 +153,6 @@ def actualizar_producto(request: HttpRequest, producto_id: int):
                         return redirect('index')
                     except (HTTPError, RequestException) as e:
                         error_message = f'Error al actualizar el producto: {str(e)}'
-                        print(json_data)
                         messages.error(request, error_message)
             else:
                 producto = obtener_producto_por_id(producto_id)
@@ -252,11 +251,9 @@ def boleta(request):
 
             resp = tx.commit(TBK_TOKEN)
 
-
             if resp['status'] != 'ABORTED':
-                resp = tx.commit(TBK_TOKEN)  # Opcional: para depuración
+                resp = tx.commit(TBK_TOKEN)
 
-                # Manejar diferentes estados de respuesta
                 if resp['status'] == 'AUTHORIZED':
                     context = {
                         'message': "Pago autorizado",
@@ -264,7 +261,6 @@ def boleta(request):
                         'amount': resp['amount'],
                         'buy_order': resp['buy_order']
                     }
-                    
                     
                     if "user_data" in request.session:
                         user_data = request.session['user_data']
@@ -275,35 +271,41 @@ def boleta(request):
                         }
                         if 'carro' in request.session:
                             response = requests.post('http://127.0.0.1:5000/api/pedidos/add', json=json)
-                            
                             id_pedido = response.json()['id_pedido']
-
                             procesar_pedido(request, id_pedido, user_data['id'])
 
-                            if 'carro' in request.session:
-                                del request.session['carro']
-                    else:
-                        pass #LEVANTAR ERROR DE NO SE PUDO ENCONTRAR A USUARIO
-                    
-                    
+                            if id_pedido:
+                                pedido = {
+                                    "id_pedido" : id_pedido
+                                }
+                                pedido_response = requests.post('http://127.0.0.1:5000/api/pedidos/get_pedido_linea_idpedido', json=pedido)
+                            
 
+                            
+
+                            print(pedido_response.json())
+
+                            if 'carro' in request.session:
+                                del request.session['carro'] 
+
+                        return render(request, 'core/boleta.html', {'context' : context})
                 else:
                     context = {
                         'message': "Transacción no autorizada o fallida",
                         'status': resp['status']
                     }
+                    return render(request, 'core/error.html', {'context' : context})
             else:
                 context = {
-                    'message': "Transacción completada",
+                    'message': "Transacción Fallida",
                     'status': resp['status']
-                    }
+                }
+                return render(request, 'core/error.html', {'context' : context})
         except TransbankError as e:
             context = {
-                'message': f"Error al procesar la transacción: {str(e)}"
+                'message': f"Error al procesar la transacción: {str(e)}",
+                'status': 'Desconocido'
             }
-        
-        return render(request, 'core/boleta.html', {'context' : context})
-
     else:
         return redirect('carrito')
 
