@@ -27,23 +27,6 @@ from django.contrib import messages
 
 
 def index(request):
-    if request.method == 'POST':
-        
-        try:
-            
-            id = request.POST.get('id')
-            idp = {
-                    'id': id
-                }
-            response = requests.post(f'http://127.0.0.1:5000/api/productos/delete_producto', json=idp)
-            
-            if response.status_code == 200:
-                return redirect('index')
-            else:
-                pass
-        except Exception as e:
-            pass
-    else:
         try:
             response = requests.get('http://127.0.0.1:5000/api/productos')
             response.raise_for_status() 
@@ -130,29 +113,35 @@ def productos(request):
 
 
 def carrito(request):
-    random_order = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
-    random_session = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))  
+    if "user_data" in request.session:
+        user_data = request.session['user_data']
+    else:
+        user_data = False
+    if user_data:
+        random_order = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
+        random_session = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))  
 
-    response = redirect('index')
-    if context_processor.importe_total_carro(request)['importe_total_carro'] > 0:
+        response = redirect('index')
+        if context_processor.importe_total_carro(request)['importe_total_carro'] > 0:
 
-        buy_order = "ordenCompra" + random_order
-        session_id = "sesion" + random_session
-        return_url = 'http://127.0.0.1:8000/boleta/response/'
-        amount = context_processor.importe_total_carro(request)['importe_total_carro']
+            buy_order = "ordenCompra" + random_order
+            session_id = "sesion" + random_session
+            return_url = 'http://127.0.0.1:8000/boleta/response/'
+            amount = context_processor.importe_total_carro(request)['importe_total_carro']
 
-        tx = Transaction(WebpayOptions(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, IntegrationType.TEST))
+            tx = Transaction(WebpayOptions(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, IntegrationType.TEST))
 
-        resp = tx.create(buy_order, session_id, amount, return_url)
+            resp = tx.create(buy_order, session_id, amount, return_url)
 
 
-        context = {'transaccion': resp}
+            context = {'transaccion': resp}
 
-    
+        
 
-        return render(request, 'core/cart.html', context)
-    return render(request, 'core/cart.html')
-
+            return render(request, 'core/cart.html', context)
+        return render(request, 'core/cart.html')
+    else:
+        return redirect('login')
 
 
 
@@ -237,6 +226,8 @@ def logout(request, producto_id):
     response = requests.post('http://127.0.0.1:5000/api/users/logout', json=json)
     if response.status_code == 200:
         del request.session['user_data']
+        if 'carro' in request.session:
+            del request.session['carro']
         return redirect('index')
     
 
@@ -291,12 +282,7 @@ def boleta(request):
             if resp['status'] != 'ABORTED':
                 resp = tx.commit(TBK_TOKEN)
                 if resp['status'] == 'AUTHORIZED':
-                    context = {
-                        'message': "Pago autorizado",
-                        'authorization_code': resp['authorization_code'],
-                        'amount': resp['amount'],
-                        'buy_order': resp['buy_order']
-                    }
+                    
                     
                     if "user_data" in request.session:
                         user_data = request.session['user_data']
@@ -317,6 +303,24 @@ def boleta(request):
                             
                             
                             print(pedido_response.json())
+                            context = {
+                                'descripcion': 'Webpay', 
+                                'estado': 'Pendiente', 
+                                'fecha_pedido': '2024/05/26 07:38:05', 
+                                'id': 14, 
+                                'lineas_pedido': [
+                                    {'cantidad': 1, 
+                                    'categoria': 'Herramienta Eléctrica',
+                                    'linea_id': 23, 
+                                    'marca': 'Bosch', 
+                                    'nombre': 'EasyDrill 18V-40', 
+                                    'pedido_id': 14, 
+                                    'precio': 65000}
+                                    ], 
+                                'monto': 65000, 
+                                'num_orden': 'ordenComprawg184s69', 
+                                'usuario_id': 4
+                            }
                             if 'carro' in request.session:
                                 del request.session['carro'] 
                         return render(request, 'core/boleta.html', {'context' : context})
@@ -402,7 +406,21 @@ def actualizar_rol_usuario(request, usuario_id):
                 messages.success(request, 'El rol del usuario ha sido actualizado correctamente.')
             else:
                 messages.error(request, 'Hubo un error al actualizar el rol del usuario.')
-        return redirect('control_users')
+        
+
+def delete_producto(request, id):
+    if id:
+        idp = {
+                'id': id
+            }
+        response = requests.post(f'http://127.0.0.1:5000/api/productos/delete_producto', json=idp)
+        
+        if response.status_code == 200:
+            return redirect('index')
+            print("pasó")
+        else:
+            pass
+    return redirect('index')
 
 
 def add_producto(request):

@@ -18,6 +18,7 @@ urlpatterns = [
         path('boleta/response/', boleta, name="boleta"),
         path('actualizar_rol/<int:usuario_id>/', actualizar_rol_usuario, name="actualizar_rol"),
         path('mis_pedidos', mis_pedidos, name="mis_pedidos"),
+        path('delete_producto/<int:id>/', delete_producto, name="delete_producto"),
 
         
 ]
