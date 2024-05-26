@@ -4,7 +4,7 @@ import requests
 
 from .carro import Carro
 
-from .models import Producto
+from .models import Producto, Pedido, LineaPedidos
 
 
 def agregar_producto(request, producto_id):
@@ -34,7 +34,7 @@ def eliminar_producto(request, producto_id):
 
     return redirect("carrito")
 
-def  restar_producto(request, producto_id):
+def restar_producto(request, producto_id):
     carro=Carro(request)
     json ={
         "id" : producto_id
@@ -53,3 +53,13 @@ def limpiar_carro(request, producto_id):
     carro.limpiar_carro()
 
     return redirect("carrito")
+
+def procesar_pedido(request, id_pedido, usuario_id):
+    carro = Carro(request)
+    lineas_pedidos = list()
+    for key, value in carro.carro.items():
+        linea = LineaPedidos(key, id_pedido, value["cantidad"], usuario_id )
+        lineas_pedidos.append(linea.to_JSON())
+    payload  = {"lineas_pedido" : lineas_pedidos}
+    print(payload)
+    response = requests.post('http://127.0.0.1:5000/api/pedidos/add_lineapedido', json=payload )

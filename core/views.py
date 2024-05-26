@@ -17,6 +17,7 @@ from transbank.common.integration_api_keys import IntegrationApiKeys
 from transbank.common.integration_type import IntegrationType
 from transbank.error.transbank_error import TransbankError
 from carro import context_processor
+from carro.views import procesar_pedido
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from requests.exceptions import RequestException, HTTPError
@@ -142,7 +143,6 @@ def actualizar_producto(request: HttpRequest, producto_id: int):
                     return redirect('index')
                 except (HTTPError, RequestException) as e:
                     error_message = f'Error al actualizar el producto: {str(e)}'
-                    print(json_data)
                     return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=500)
             else:
                 producto = obtener_producto_por_id(producto_id)
@@ -220,11 +220,9 @@ def boleta(request):
 
             resp = tx.commit(TBK_TOKEN)
 
-            print(resp)
 
             if resp['status'] != 'ABORTED':
-                resp = tx.commit(TBK_TOKEN)
-                print(resp)  # Opcional: para depuración
+                resp = tx.commit(TBK_TOKEN)  # Opcional: para depuración
 
                 # Manejar diferentes estados de respuesta
                 if resp['status'] == 'AUTHORIZED':
@@ -234,8 +232,29 @@ def boleta(request):
                         'amount': resp['amount'],
                         'buy_order': resp['buy_order']
                     }
-                    if 'carro' in request.session:
-                        del request.session['carro']
+                    
+                    
+                    if "user_data" in request.session:
+                        user_data = request.session['user_data']
+                        json = {
+                            "id_usuario" : user_data['id'],
+                            "num_orden" : context['buy_order'],
+                            "monto" : context['amount']
+                        }
+                        if 'carro' in request.session:
+                            response = requests.post('http://127.0.0.1:5000/api/pedidos/add', json=json)
+                            
+                            id_pedido = response.json()['id_pedido']
+
+                            procesar_pedido(request, id_pedido, user_data['id'])
+
+                            if 'carro' in request.session:
+                                del request.session['carro']
+                    else:
+                        pass #LEVANTAR ERROR DE NO SE PUDO ENCONTRAR A USUARIO
+                    
+                    
+
                 else:
                     context = {
                         'message': "Transacción no autorizada o fallida",
@@ -334,7 +353,6 @@ def add_producto(request):
             stock = request.POST.get('stock')
             imagen = request.FILES.get('imagen')
 
-            print(imagen)
             # Crear un diccionario con los datos del producto
             producto = {
                 "nombre": nombre,
