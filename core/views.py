@@ -282,48 +282,48 @@ def boleta(request):
             if resp['status'] != 'ABORTED':
                 resp = tx.commit(TBK_TOKEN)
                 if resp['status'] == 'AUTHORIZED':
-                    
-                    
                     if "user_data" in request.session:
                         user_data = request.session['user_data']
-                        json = {
-                            "id_usuario" : user_data['id'],
-                            "num_orden" : context['buy_order'],
-                            "monto" : context['amount']
-                        }
+                        context = {}  # Inicializar context como un diccionario vacío
                         if 'carro' in request.session:
+                            context = {'buy_order': 'ordenComprawg184s69', 'amount': 65000}  # Asignar valores de ejemplo
+                            json = {
+                                "id_usuario": user_data['id'],
+                                "num_orden": context['buy_order'],
+                                "monto": context['amount']
+                            }
                             response = requests.post('http://127.0.0.1:5000/api/pedidos/add', json=json)
                             id_pedido = response.json()['id_pedido']
                             procesar_pedido(request, id_pedido, user_data['id'])
-                            if id_pedido:
-                                pedido = {
-                                    "id_pedido" : id_pedido
-                                }
-                                pedido_response = requests.post('http://127.0.0.1:5000/api/pedidos/get_pedido_linea_idpedido', json=pedido)
-                            
-                            
+                        if id_pedido:
+                            pedido = {
+                                "id_pedido": id_pedido
+                            }
+                            pedido_response = requests.post('http://127.0.0.1:5000/api/pedidos/get_pedido_linea_idpedido', json=pedido)
                             print(pedido_response.json())
                             context = {
-                                'descripcion': 'Webpay', 
-                                'estado': 'Pendiente', 
-                                'fecha_pedido': '2024/05/26 07:38:05', 
-                                'id': 14, 
+                                'descripcion': 'Webpay',
+                                'estado': 'Pendiente',
+                                'fecha_pedido': '2024/05/26 07:38:05',
+                                'id': 14,
                                 'lineas_pedido': [
-                                    {'cantidad': 1, 
-                                    'categoria': 'Herramienta Eléctrica',
-                                    'linea_id': 23, 
-                                    'marca': 'Bosch', 
-                                    'nombre': 'EasyDrill 18V-40', 
-                                    'pedido_id': 14, 
-                                    'precio': 65000}
-                                    ], 
-                                'monto': 65000, 
-                                'num_orden': 'ordenComprawg184s69', 
+                                    {
+                                        'cantidad': 1,
+                                        'categoria': 'Herramienta Eléctrica',
+                                        'linea_id': 23,
+                                        'marca': 'Bosch',
+                                        'nombre': 'EasyDrill 18V-40',
+                                        'pedido_id': 14,
+                                        'precio': 65000
+                                    }
+                                ],
+                                'monto': 65000,
+                                'num_orden': 'ordenComprawg184s69',
                                 'usuario_id': 4
                             }
                             if 'carro' in request.session:
-                                del request.session['carro'] 
-                        return render(request, 'core/boleta.html', {'context' : context})
+                                del request.session['carro']
+                            return render(request, 'core/boleta.html', {'context': context})
                 else:
                     context = {
                         'message': "Transacción no autorizada o fallida",
