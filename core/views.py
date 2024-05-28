@@ -154,41 +154,45 @@ def actualizar_producto(request: HttpRequest, producto_id: int):
 
     if user_data:
         if user_data['is_connect'] == 1:
-            if request.method == 'POST':
-                stock = request.POST.get('stock')
-                precio = request.POST.get('precio')
+            try:
+                if request.method == 'POST':
+                    stock = request.POST.get('stock')
+                    precio = request.POST.get('precio')
+                    imagen = request.FILES.get('imagen')
 
-                # Validar el stock y el precio
-                if int(stock) <= 0:
-                    messages.error(request, 'El stock debe ser mayor a 0.')
-                elif float(precio) <= 0:
-                    messages.error(request, 'El precio debe ser mayor a 0.')
-                else:
-                    json_data = {
-                        'id': producto_id,
-                        'categoria': request.POST.get('categoria'),
-                        'descripcion': request.POST.get('descripcion'),
-                        'imagen': request.POST.get('imagen'),
-                        'marca': request.POST.get('marca'),
-                        'nombre': request.POST.get('nombre'),
-                        'precio': precio,
-                        'stock': stock
-                    }
-                    try:
-                        response = requests.post('http://127.0.0.1:5000/api/productos/actualizar_productos', json=json_data)
+                    # Validar el stock y el precio
+                    if int(stock) <= 0:
+                        messages.error(request, 'El stock debe ser mayor a 0.')
+                    elif float(precio) <= 0:
+                        messages.error(request, 'El precio debe ser mayor a 0.')
+                    else:
+                        json_data = {
+                            'id': producto_id,
+                            'categoria_id': request.POST.get('categoria'),
+                            'descripcion': request.POST.get('descripcion'),
+                            'imagen': imagen.name,
+                            'marca_id': request.POST.get('marca'),
+                            'nombre': request.POST.get('nombre'),
+                            'precio': precio,
+                            'stock': stock
+                        }
+                        print(json_data)
+
+                        response = requests.post('http://127.0.0.1:5000/api/productos/actualizar_producto', json=json_data)
                         response.raise_for_status()
-                        messages.success(request, 'Producto actualizado correctamente.')
                         return redirect('index')
-                    except (HTTPError, RequestException) as e:
-                        error_message = f'Error al actualizar el producto: {str(e)}'
-                        messages.error(request, error_message)
-            else:
-                producto = obtener_producto_por_id(producto_id)
-                if producto is None:
-                    error_message = 'El producto no se encuentra.'
-                    return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=404)
+                        
+                else:
+                    producto = obtener_producto_por_id(producto_id)
+                    if producto is None:
+                        error_message = 'El producto no se encuentra.'
+                        return HttpResponse(f'<html><body><p>{error_message}</p></body></html>', status=404)
 
-                return render(request, 'core/actualizar_producto.html', {'producto': producto})
+                    return render(request, 'core/actualizar_producto.html', {'producto': producto})
+            except Exception as e:
+                            error_message = f'Error al actualizar el producto: {str(e)}'
+                            messages.error(request, error_message)
+                            return redirect('actualizar_producto', producto_id)
         else:
             return redirect('login')
     else:
