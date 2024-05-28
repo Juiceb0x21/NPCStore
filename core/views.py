@@ -41,23 +41,24 @@ def mis_pedidos(request):
     if "user_data" in request.session:
         user_data = request.session['user_data']
         user_id = user_data['id']
-        print(user_id)
+        try:
+            json = {
+                        "id_usuario": user_id
+                    }
+            response = requests.post('http://127.0.0.1:5000/api/pedidos/get_pedido_linea_iduser', json=json)
+            response.raise_for_status()
+            pedidos = response.json()
+            print(pedidos)
+            context = {'pedidos': pedidos}
+        except requests.exceptions.RequestException as e:
+            context = {'error': f'No se pudo obtener los pedidos: {e}'}
+
+        return render(request, 'core/mis_pedidos.html', context)
     else:
         # El usuario no está autenticado, redirigir a la página de inicio de sesión
         return redirect('login')
 
-    try:
-        json = {
-                    "id_usuario": user_id
-                }
-        response = requests.post('http://127.0.0.1:5000/api/pedidos/get_pedido_linea_iduser', json=json)
-        response.raise_for_status()
-        pedidos = response.json()
-        context = {'pedidos': pedidos}
-    except requests.exceptions.RequestException as e:
-        context = {'error': f'No se pudo obtener los pedidos: {e}'}
-
-    return render(request, 'core/mis_pedidos.html', context)
+    
 
 def login(request):
     if request.method == 'POST':
@@ -236,6 +237,7 @@ def bodeguero(request):
         response = requests.get('http://127.0.0.1:5000/api/pedidos/get_pedido_linea')
         response.raise_for_status()
         pedidos = response.json()
+        print(pedidos)
         context = {'pedidos': pedidos}
     except requests.exceptions.RequestException as e:
         context = {'error': f'No se pudo obtener las órdenes: {e}'}
@@ -285,45 +287,36 @@ def boleta(request):
                     if "user_data" in request.session:
                         user_data = request.session['user_data']
                         context = {}  # Inicializar context como un diccionario vacío
-                        if 'carro' in request.session:
-                            context = {'buy_order': 'ordenComprawg184s69', 'amount': 65000}  # Asignar valores de ejemplo
+                        if 'carro' in request.session:  # Asignar valores de ejemplo
                             json = {
                                 "id_usuario": user_data['id'],
-                                "num_orden": context['buy_order'],
-                                "monto": context['amount']
+                                "num_orden": resp['buy_order'],
+                                "monto": resp['amount']
                             }
                             response = requests.post('http://127.0.0.1:5000/api/pedidos/add', json=json)
                             id_pedido = response.json()['id_pedido']
                             procesar_pedido(request, id_pedido, user_data['id'])
-                        if id_pedido:
-                            pedido = {
-                                "id_pedido": id_pedido
-                            }
-                            pedido_response = requests.post('http://127.0.0.1:5000/api/pedidos/get_pedido_linea_idpedido', json=pedido)
-                            print(pedido_response.json())
-                            context = {
-                                'descripcion': 'Webpay',
-                                'estado': 'Pendiente',
-                                'fecha_pedido': '2024/05/26 07:38:05',
-                                'id': 14,
-                                'lineas_pedido': [
-                                    {
-                                        'cantidad': 1,
-                                        'categoria': 'Herramienta Eléctrica',
-                                        'linea_id': 23,
-                                        'marca': 'Bosch',
-                                        'nombre': 'EasyDrill 18V-40',
-                                        'pedido_id': 14,
-                                        'precio': 65000
-                                    }
-                                ],
-                                'monto': 65000,
-                                'num_orden': 'ordenComprawg184s69',
-                                'usuario_id': 4
-                            }
-                            if 'carro' in request.session:
-                                del request.session['carro']
-                            return render(request, 'core/boleta.html', {'context': context})
+                            if id_pedido:
+                                pedido = {
+                                    "id_pedido": id_pedido
+                                }
+                                pedido_response = requests.post('http://127.0.0.1:5000/api/pedidos/get_pedido_linea_idpedido', json=pedido)
+                                print(pedido_response.json())
+
+                                context = {
+                                    'descripcion': pedido_response.json()[0]['descripcion'],
+                                    'estado': pedido_response.json()[0]['estado'],
+                                    'fecha_pedido': pedido_response.json()[0]['fecha_pedido'],
+                                    'id': pedido_response.json()[0]['id'],
+                                    'lineas_pedido': pedido_response.json()[0]['lineas_pedido'],
+                                    'monto': pedido_response.json()[0]['monto'],
+                                    'num_orden': pedido_response.json()[0]['num_orden'],
+                                    'usuario_id': pedido_response.json()[0]['usuario_id']
+                                }
+                                if 'carro' in request.session:
+                                    del request.session['carro']
+                                return render(request, 'core/boleta.html', {'context': context})
+                        return redirect('boleta')
                 else:
                     context = {
                         'message': "Transacción no autorizada o fallida",
@@ -404,9 +397,11 @@ def actualizar_rol_usuario(request, usuario_id):
             response = requests.post(url, json=data)
             if response.status_code == 200:
                 messages.success(request, 'El rol del usuario ha sido actualizado correctamente.')
+                return redirect('control_users')
             else:
                 messages.error(request, 'Hubo un error al actualizar el rol del usuario.')
-        
+                return redirect('control_users')
+    return redirect('control_users')
 
 def delete_producto(request, id):
     if id:

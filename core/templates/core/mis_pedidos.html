@@ -3,7 +3,7 @@
 {% block contenido %}
 <div class="container my-5">
     <h1 class="text-center mb-4"><strong>Mis pedidos</strong></h1>
-    {% if error %}
+    {% if pedidos.estado == False %}
     <div class="text-center">
         <p class="h3 mb-3">No tienes pedidos.</p>
         <a href="{% url 'index' %}" class="btn btn-primary btn-lg">Ir al inicio</a>
@@ -41,11 +41,6 @@
                 </tbody>
             </table>
         </div>
-    {% else %}
-    <div class="text-center">
-        <p class="h3 mb-3">No tienes pedidos.</p>
-        <a href="{% url 'index' %}" class="btn btn-primary btn-lg">Ir al inicio</a>
-    </div>
     {% endif %}
 </div>
 {% endblock %}
