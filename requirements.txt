@@ -5,3 +5,5 @@ pillow
 crispy-bootstrap4
 requests
 transbank-sdk
+pytest
+pytest-django
