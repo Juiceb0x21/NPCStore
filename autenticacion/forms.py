@@ -12,10 +12,10 @@ def validar(value):
 class RegistroForm(forms.Form):
     rut = forms.IntegerField(label='Rut', validators=[validar])
     dv = forms.CharField(label='Dv', min_length=1, max_length=1)
-    nombre = forms.CharField(label='Nombre', min_length=0, max_length=40)
-    apellido = forms.CharField(label='Apellido', min_length=0, max_length=30)
-    correo = forms.CharField(label='Correo', min_length=0, max_length=150)
-    contrasena = forms.CharField(label='Contraseña', min_length=0, max_length=50)
+    nombre = forms.CharField(label='Nombre', min_length=3, max_length=40)
+    apellido = forms.CharField(label='Apellido', min_length=3, max_length=30)
+    correo = forms.CharField(label='Correo', min_length=10, max_length=150)
+    contrasena = forms.CharField(label='Contraseña', min_length=8, max_length=50)
 
     def clean(self):
         cleaned_data = super().clean()

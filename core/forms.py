@@ -5,7 +5,7 @@ from crispy_forms.layout import Layout, Submit
 
 class loginForm(forms.Form):
     correo= forms.CharField(label='Correo', min_length=0, max_length=100)
-    contrasena = forms.CharField(label='Contraseña', min_length=0, max_length=100)
+    contrasena = forms.CharField(label='Contraseña', min_length=8, max_length=100)
 
     def init(self, args, **kwargs):
         super().init(args, **kwargs)

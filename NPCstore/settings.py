@@ -126,7 +126,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-if 'test' is sys.argv:
+if 'test' in sys.argv:
         STATICFILES_STORAGE  =  'django.contrib.staticfiles.storage.StoragefilesStorage'
 
 
